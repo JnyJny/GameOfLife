@@ -123,7 +123,7 @@ class World(list):
 
     '''
     
-    def __init__(self,CellClass=None,width=80,height=65):
+    def __init__(self,CellClass=None,width=80,height=23):
         '''
         '''
         self.generation = 0
@@ -190,7 +190,7 @@ class World(list):
         except TypeError:
             pass
         
-        return super(GameOfLife,self).__getitem__(key)
+        return super(self.__class__,self).__getitem__(key)
 
     @property
     def alive(self):
@@ -274,7 +274,7 @@ Patterns = { 'glider':' x \n  x\nxxx',
 
 w = World()
 w.add(Patterns['glider'])
-w.go(interval=0.1)
+w.go(interval=0.01)
 
 
     
