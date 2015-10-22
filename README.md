@@ -34,7 +34,7 @@ to think about replacing the Cell model with a numpy array to take
 advantage of presumably optimized array accessors.  Or even just an
 array of characters and letting the character value encode the cell
 state in a more compact (and obtuse) manner. Those changes are pretty
-disruptive and I decided to post-pone them.
+disruptive and I decided to postpone them.
 
 As far as simple but useful optimizations, caching each cell's
 neighbor coordinates traded space for time when calculating the status
