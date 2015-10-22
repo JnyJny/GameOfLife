@@ -271,12 +271,9 @@ Patterns = { 'glider':' x \n  x\nxxx',
              'pulsar':'  xxx   xxx\n\nx    x x    x\nx    x x    x\nx    x x    x\n  xxx   xxx\n\n  xxx   xxx\nx    x x    x\nx    x x    x\nx    x x    x\n\n  xxx   xxx'
              }
 
-
 g = GameOfLife()
+g.add(Patterns['glider'])
+g.go(interval=0.1)
 
-#g.add(Patterns['blinker'])
-#g.add(Patterns['glider'],10,10)
-#g.go(interval=0.1)
-g.add(Patterns['pulsar'],10,10)
 
     
