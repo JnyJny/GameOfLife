@@ -35,10 +35,12 @@ But I ran out of give a.. dang.
 I've provided a few simple patterns to prove that the simulation
 is working.
 
- >>> from GameOfLife import *
- >>> w = World()
- >>> w.add(Pattern['glider'])
- >>> w.go(interavl=0.1)
+```python
+from GameOfLife import *
+w = World()
+w.add(Pattern['glider'])
+w.go(interavl=0.1)
+```
 
 
 [1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
