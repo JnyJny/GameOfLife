@@ -106,19 +106,20 @@ class Cell(object):
         return self.alive + other
 
 
-class GameOfLife(list):
+class World(list):
     '''
-    The game is a two dimensional grid, each coordinate is the address
-    of a Cell in the world.
+    The game world is a two dimensional grid, each coordinate is the
+    address of a Cell.
 
-    >>> g = GameOfLife()
-    >>> g[0]
+    >>> w = World()
+    >>> w[0]
     Cell(location=(0,0),...)
 
-    >>> g[x,y] 
+    >>> w[x,y] 
     Cell(location=(x,y),...)
 
-    >> g.step()
+    >> w.step()
+    >> print(w)
 
     '''
     
@@ -271,9 +272,9 @@ Patterns = { 'glider':' x \n  x\nxxx',
              'pulsar':'  xxx   xxx\n\nx    x x    x\nx    x x    x\nx    x x    x\n  xxx   xxx\n\n  xxx   xxx\nx    x x    x\nx    x x    x\nx    x x    x\n\n  xxx   xxx'
              }
 
-g = GameOfLife()
-g.add(Patterns['glider'])
-g.go(interval=0.1)
+w = World()
+w.add(Patterns['glider'])
+w.go(interval=0.1)
 
 
     
