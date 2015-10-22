@@ -54,7 +54,7 @@ is working.
 ```python
 from GameOfLife import *
 w = World()
-w.add(Pattern['glider'])
+w.add(Patterns['glider'])
 w.go(interavl=0.1)
 ```
 
@@ -80,6 +80,8 @@ Or the compact version I chose for the dictionary:
               ...
 		    }
 ```
+
+I hope you find this entertaining, python continues to delight me.
 
 [1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
