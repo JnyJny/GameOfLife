@@ -1,6 +1,8 @@
 # GameOfLife
 Conway's Game of Life - Cellular Automata in Python
 
+![](https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/GameOfLifeDemo.gif)
+
 This is one of those things that everybody writes once to just
 see how it's done. Wikipedia was very helpful for getting
 the [basics of the game][1] down.
