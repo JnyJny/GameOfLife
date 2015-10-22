@@ -55,3 +55,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Emacs temporary files
+*~
+#*
+
+# html files produced while looking at rendered markdown
+*.html
