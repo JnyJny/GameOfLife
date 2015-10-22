@@ -6,6 +6,21 @@ import hashlib
 import time
 import colorama
 
+Patterns = { 'glider':' x \n  x\nxxx',
+             'LWS':'x  x\n    x\nx   x\n xxxx',
+             
+             'block':'xx\nxx',
+             'beehive':' xx \nx  x\n xx ',
+             'loaf':' xx \nx  x\n x x\n   x',
+             'boat':'xx \nx x\n x ',
+             
+             'blinker': 'xxx',
+             'toad': ' xxx\nxxx ',
+             'beacon': 'xx  \nxx  \n  xx\n  xx\n',
+             'pulsar':'  xxx   xxx\n\nx    x x    x\nx    x x    x\nx    x x    x\n  xxx   xxx\n\n  xxx   xxx\nx    x x    x\nx    x x    x\nx    x x    x\n\n  xxx   xxx'
+             }
+
+
 class Cell(object):
     colors = [ colorama.ansi.Fore.WHITE,
                colorama.ansi.Fore.YELLOW,
@@ -26,14 +41,12 @@ class Cell(object):
     def __str__(self):
         m = self.markers[int(self.alive)]
 
-        if self.alive:
-            try:
-                c = self.colors[self.age // 10]
-            except:
-                c = self.colors[-1]
-        else:
-            c = self.colors[0]
-            
+        if not self.alive:
+            return m
+        try:
+            c = self.colors[self.age // 10]
+        except:
+            c = self.colors[-1]
         return c + m + colorama.ansi.Fore.RESET
 
     def __repr__(self):
@@ -190,7 +203,7 @@ class World(list):
         except TypeError:
             pass
         
-        return super(self.__class__,self).__getitem__(key)
+        return super(World,self).__getitem__(key)
 
     @property
     def alive(self):
@@ -258,23 +271,76 @@ class World(list):
                 self[x+X,y+Y].alive = not c.isspace()
         
 
-Patterns = { 'glider':' x \n  x\nxxx',
-             'LWS':'x  x\n    x\nx   x\n xxxx',
-             
-             'block':'xx\nxx',
-             'beehive':' xx \nx  x\n xx ',
-             'loaf':' xx \nx  x\n x x\n   x',
-             'boat':'xx \nx x\n x ',
-             
-             'blinker': 'xxx',
-             'toad': ' xxx\nxxx ',
-             'beacon': 'xx  \nxx  \n  xx\n  xx\n',
-             'pulsar':'  xxx   xxx\n\nx    x x    x\nx    x x    x\nx    x x    x\n  xxx   xxx\n\n  xxx   xxx\nx    x x    x\nx    x x    x\nx    x x    x\n\n  xxx   xxx'
-             }
+class CursesCell(Cell):
+    def __str__(self):
+        return self.markers[self.alive]
 
-w = World()
-w.add(Patterns['glider'])
-w.go(interval=0.01)
+class CursesWorld(World):
+    def __init__(self,cellClass=CursesCell,window=None):
+        h,w = window.getmaxyx()
+        super(CursesWorld,self).__init__(cellClass,w,h-1)
+        self.w = window
+
+    def draw(self):
+        self.w.move(0,0)
+        self.w.clrtobot()
+        lines = str(self).splitlines()
+        for n,line in enumerate(lines):
+            self.w.addstr(n,0,line)
+        self.w.addstr(self.height,2,'Generation: {g}'.format(g=self.generation))
+        self.w.move(self.height,1)
+        self.w.refresh()
+
+    def go(self,stop=-1,interval=0.5):
+        import curses
+        self.w.clear()
+        try:
+            while True:
+                if self.generation == stop:
+                    break
+                self.step()
+                self.draw()
+                time.sleep(interval)
+        except KeyboardInterrupt:
+            pass
+        
+
+def main(stdscr,argv):
+
+    w = CursesWorld(window=stdscr)
+
+    for thing in sys.argv[1:]:
+        x,y = 0,0
+        name,_,where = thing.partition(',')
+        try:
+            if len(where):
+                x,y = map(int,where.split(','))
+
+        except:
+            pass
+
+        w.add(Patterns[name],x,y)
+            
+    w.go(interval=0.01)
+    
+
+if __name__ == '__main__':
+    import sys
+
+    from curses import wrapper
+
+    try:
+        wrapper(main,sys.argv)
+    except KeyError as e:
+        print("Unknown pattern named '{name}'".format(name=e))
+        print('Known pattern names:')
+        for name in Patterns.keys():
+            print('\t{n}'.format(n=name))
+        
+
+        
+    
+
 
 
     
