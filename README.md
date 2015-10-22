@@ -15,8 +15,8 @@ are organized by a 'world' object. This presented a few challenges:
 
 I also wanted to have a simple display method so I could concentrate
 on the implementation. So I made the world as big as my terminal
-window and just printed the world on each generation. I think a --curses--
-or pygame interface would also be quick and fun to write.
+window and just printed the world on each generation. I think a ~~curses
+or~~ pygame interface would also be quick and fun to write.
 
 Curses turned out to be relatively easy to add, so pygame is next.
 
