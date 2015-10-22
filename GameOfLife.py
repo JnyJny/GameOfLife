@@ -282,8 +282,6 @@ class CursesWorld(World):
         self.w = window
 
     def draw(self):
-        self.w.move(0,0)
-        self.w.clrtobot()
         lines = str(self).splitlines()
         for n,line in enumerate(lines):
             self.w.addstr(n,0,line)
