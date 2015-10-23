@@ -3,7 +3,7 @@
 
 from . import Cell
 
-class World(list):
+class World(object):
     '''
     The game world is a two dimensional grid, each coordinate is the
     address of a Cell.
@@ -37,6 +37,15 @@ class World(list):
         self.cellClass = CellClass
         self.reset()
 
+    @property
+    def cells(self):
+        try:
+            return self._cells
+        except AttributeError:
+            pass
+        self._cells = []
+        return self._cells
+
     def __str__(self):
         '''
         '''
@@ -57,6 +66,23 @@ class World(list):
                           w = self.width,
                           h = self.height)
 
+    def _clamp(self,key):
+        '''
+        '''
+        
+        x,y = key
+        
+        if x < 0:
+            x = self.width + x
+        if x >= self.width:
+            x -= self.width
+            
+        if y < 0:
+            y = self.height + y
+        if y >= self.height:
+            y -= self.height
+        return x,y
+
     def __getitem__(self,key):
         '''
         :key: tuple, integer or slice
@@ -71,23 +97,12 @@ class World(list):
 
         '''
         try:
-            x,y = key
-            
-            if x < 0:
-                x = self.width + x
-            if x >= self.width:
-                x -= self.width
-                
-            if y < 0:
-                y = self.height + y
-            if y >= self.height:
-                y -= self.height
-                
-            return self[(y * self.width)+x]
+            x,y = self._clamp(key)
+            return self.cells[(y * self.width)+x]
         except TypeError:
             pass
         
-        return super(World,self).__getitem__(key)
+        return self.cells[key]
 
     @property
     def alive(self):
@@ -108,11 +123,11 @@ class World(list):
         Resets the simulation to base state. 
         '''
         self.generation = 0
-        self.clear()
+        self.cells.clear()
         for y in range(self.height):
             row = []
             for x in range(self.width):
-                self.append(self.cellClass(x,y))
+                self.cells.append(self.cellClass(x,y))
 
     def neighborsFor(self,cell):
         '''
@@ -140,3 +155,35 @@ class World(list):
             for X,c in enumerate(line):
                 self[x+X,y+Y].alive = not c.isspace()
         
+
+class WorldOpt(World):
+
+    def reset(self):
+        super(WorldOpt,self).reset()
+        self.live = set(self.alive)
+
+    def add(self,pattern,x=0,y=0):
+        super(WorldOpt,self).add(pattern,x,y)
+        self.live = set(self.alive)
+    
+    def step(self):
+        self.generation += 1
+
+        borders = set()
+        
+        for c in self.live:
+            neighbors = self.neighborsFor(c)
+            borders.update(set(neighbors))
+
+        self.live.update(borders)
+
+        for c in self.live:
+            c.update(sum(self.neighborsFor(c)))
+            
+        deaders = set()
+        for c in self.live:
+            c.commit(self.generation)
+            if not c.alive:
+                deaders.add(c)
+                
+        return self.live.difference_update(deaders)
