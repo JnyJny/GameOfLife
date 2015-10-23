@@ -25,7 +25,12 @@ class Cell(object):
     def __hash__(self):
         '''
         '''
-        return int(hashlib.sha1(bytes(self.repr,'utf-8')).hexdigest(),16)
+        try:
+            return self._hash
+        except AttributeError:
+            pass
+        self._hash = int(hashlib.sha1(bytes(repr(self),'utf-8')).hexdigest(),16)
+        return self._hash
 
     @property
     def neighbors(self):
@@ -35,7 +40,6 @@ class Cell(object):
             return self._neighbors
         except AttributeError:
             pass
-        
         x,y = self.location
         self._neighbors = [(x-1,y-1), (  x,y-1), (x+1,y-1),
                            (x-1,  y),            (x+1,  y),
