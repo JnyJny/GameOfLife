@@ -1,7 +1,7 @@
 # GameOfLife
 Conway's Game of Life - Cellular Automata in Python
 
-![](https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/GameOfLifeDemo.gif)
+![](https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/demo-2.gif)
 
 This is one of those things that everybody writes once to just
 see how it's done. Wikipedia was very helpful for getting
@@ -15,8 +15,10 @@ are organized by a 'world' object. This presented a few challenges:
 
 I also wanted to have a simple display method so I could concentrate
 on the implementation. So I made the world as big as my terminal
-window and just printed the world on each generation. I think a curses
-or pygame interface would also be quick and fun to write.
+window and just printed the world on each generation. I think a ~~curses
+or~~ pygame interface would also be quick and fun to write.
+
+Curses turned out to be relatively easy to add, so pygame is next.
 
 Python doesn't have a native two dimensional data structure, so I
 adapted the __getitem__ accessor (which implements subscripting on
@@ -32,7 +34,7 @@ to think about replacing the Cell model with a numpy array to take
 advantage of presumably optimized array accessors.  Or even just an
 array of characters and letting the character value encode the cell
 state in a more compact (and obtuse) manner. Those changes are pretty
-disruptive and I decided to post-pone them.
+disruptive and I decided to postpone them.
 
 As far as simple but useful optimizations, caching each cell's
 neighbor coordinates traded space for time when calculating the status
@@ -50,7 +52,7 @@ live cells and their neighbors. This avoids having to iterate through
 all the cells in the world and concentrate only on the live ones which
 have the power to affect the state of the world.
 
-I've provided a few simple patterns to prove that the simulation
+I have provided a few simple patterns to prove that the simulation
 is working.
 
 ```python
@@ -83,7 +85,28 @@ Or the compact version I chose for the dictionary:
 		    }
 ```
 
-I hope you find this entertaining, python continues to delight me.
+###Usage
+
+GameOfLife now has curses support and dodgy command-line parsing!
+
+```
+$ GameOfLife [pattern_name[,X,Y]] ...
+...
+$ GameOfLife.py foo
+Unknown pattern named ''foo''
+Known pattern names:
+	block
+	LWS
+	toad
+	pulsar
+	loaf
+	glider
+	blinker
+	beehive
+	beacon
+	boat
+```
+
 
 [1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
