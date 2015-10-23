@@ -36,7 +36,6 @@ class CursesWorld(World):
         return curses.color_pair(n+1)
 
     def handle_input(self):
-        
         c = self.w.getch()
         if c == ord('q'):
             exit()
@@ -45,23 +44,18 @@ class CursesWorld(World):
         '''
 
         '''
-        #self.w.clear()
-        
         for y in range(self.height):
             for x in range(self.width):
                 c = self[x,y]
                 self.w.addch(y,x,str(c)[0],self.colorForCell(c))
 
-        msg = 'Control-c to quit\t{t}\tGeneration: {g}'
+        msg = 'Control-c to quit\tGeneration: {g}'
         
-        self.w.addstr(self.height,2,msg.format(g=self.generation,
-                                               t=time.strftime('%H:%M:%S %d %b %y',
-                                                               time.localtime())))
+        self.w.addstr(self.height,2,msg.format(g=self.generation))
         self.w.move(self.height,1)
-        
         self.w.refresh()
 
-    def run(self,stop=-1,interval=100):
+    def run(self,stop=-1,interval=0):
         '''
         '''
         self.w.clear()
@@ -72,7 +66,7 @@ class CursesWorld(World):
                 self.handle_input()                
                 self.step()
                 self.draw()
-                #curses.napms(interval)
+                curses.napms(interval)
         except KeyboardInterrupt:
             pass
         
