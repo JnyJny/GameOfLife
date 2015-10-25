@@ -72,7 +72,7 @@ class CursesWorld(World):
         
         self.w.addstr(self.height,2,
                       self.status.format(self=self,
-                                         a=len(self.live),
+                                         a=len(self.alive),
                                          t=len(self.cells)))
 
 
