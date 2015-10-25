@@ -6,7 +6,10 @@ This particular Game of Life is implemented as a two dimensional
 world populated with cells.
 '''
 
-import time
+__author__ = '\n'.join(["Erik O'Shaughnessy",
+                        'erik.oshaughnessy@gmail.com',
+                        'https://github.com/JnyJny/GameOfLife'])
+__version__ = "0.0.1"
 
 from .cell import Cell as Cell
 from .world import OptimizedWorld as World
