@@ -16,6 +16,14 @@ class World(object):
 
     '''
     
+    @classmethod
+    def fromString(cls,worldString):
+        pass
+
+    @classmethod
+    def fromFile(cls,fileName):
+        pass
+    
     def __init__(self,CellClass=None,width=80,height=23):
         '''
         :param: CellClass - subclass of Cell
@@ -78,6 +86,35 @@ class World(object):
         
         return ''.join(s).format(self=self)
 
+    def write(self,fileobj):
+        '''
+        :param: fileobj - File-like object or string
+        :return: number of bytes written
+        '''
+        try:
+            nbytes = fileobj.write(str(self))
+            return nbytes
+        except AttributeError:
+            pass
+        f = open(fileobj,'w')
+        nbytes = f.write(str(self))
+        return nbytes
+
+    def read(self,fileobj,eol='\n',rule=None):
+        '''
+        '''
+        try:
+            s = fileobj.read()
+        except AttributeError:
+            f = open(fileobj,'r')
+            s = f.read()
+
+        self.height = s.count(eol)
+        self.width  = max([len(l) for l in s.split(eol)])
+        self.reset()
+        self.add(s,0,0,eol=eol,rule=rule)
+
+
     def _clamp(self,key):
         '''
         :param: key - tuple of x,y integer values
@@ -111,19 +148,6 @@ class World(object):
         
         return self.cells[key]
 
-    @property
-    def alive(self):
-        '''
-        Returns a list of Cells that are currently alive.
-        '''
-        return [c for c in self if c.alive]
-
-    @property
-    def dead(self):
-        '''
-        Returns a list of Cells that are currently not alive.
-        '''
-        return [c for c in self if not c.alive]
             
     def reset(self):
         '''
@@ -134,7 +158,6 @@ class World(object):
         self.generation = 0
         self.cells.clear()
         for y in range(self.height):
-            row = []
             for x in range(self.width):
                 self.cells.append(self.cellClass(x,y))
 
@@ -168,23 +191,36 @@ class World(object):
             c.commit()
 
             
-    def add(self,pattern,x=0,y=0):
+    def add(self,pattern,x=0,y=0,rule=None,eol='\n'):
         '''
         :param: pattern - string
         :param: x - integer
         :param: y - integer
-        :return: None
+        :param: rule - function with signature 'f(x) returns boolean'
+        :param: eol - character that marks the end of a line in the string
+        :return: set of visited cells
 
         This method uses the pattern string to affect the alive/dead
         state of cells in the world.  The x and y paramters can be used
         to place the pattern at an arbitrary position in the world.
 
         The first character in the string corresponds to coordinate (0,0).
-        '''
-        for Y,line in enumerate(pattern.split('\n')):
-            for X,c in enumerate(line):
-                self[x+X,y+Y].alive = not c.isspace()
 
+        The rule parameter can be used to specify the rule for determining
+        how to interpret each item in the string in terms of alive or dead.
+
+        '''
+
+        if rule is None:
+            rule = lambda x: not x.isspace()
+        
+        visited = set()
+        for Y,line in enumerate(pattern.split(eol)):
+            for X,c in enumerate(line):
+                self[x+X,y+Y].alive = rule(c)
+                visited.add(self[x+X,y+Y])
+        return visited
+    
 
 class OptimizedWorld(World):
     '''
@@ -203,6 +239,16 @@ class OptimizedWorld(World):
     This world has an optimized step method that only updates live
     cells and their neighbors rather than all cells, live or dead.
     '''
+
+    @property
+    def alive(self):
+        try:
+            return self._alive
+        except AttributeError:
+            pass
+        self._alive = set()
+        return self._alive
+    
     def reset(self):
         '''
         Resets the simulation to base state:
@@ -211,7 +257,8 @@ class OptimizedWorld(World):
         - creates an empty list of live cells
         '''
         super(OptimizedWorld,self).reset()
-        self.live = set(self.alive)
+        self.alive.clear()
+        self.alive.update(set([c for c in self if c.alive]))
 
     def add(self,pattern,x=0,y=0):
         '''
@@ -228,8 +275,10 @@ class OptimizedWorld(World):
 
         Updates the set of live cells.
         '''
-        super(OptimizedWorld,self).add(pattern,x,y)
-        self.live = set(self.alive)
+        
+        visited = super(OptimizedWorld,self).add(pattern,x,y)
+        
+        self.alive.update(set([c for c in visited if c.alive]))
     
     def step(self):
         '''
@@ -249,19 +298,19 @@ class OptimizedWorld(World):
 
         borders = set()
         
-        for c in self.live:
+        for c in self.alive:
             neighbors = self.neighborsFor(c)
             borders.update(set(neighbors))
 
-        self.live.update(borders)
+        self.alive.update(borders)
 
-        for c in self.live:
+        for c in self.alive:
             c.update(sum(self.neighborsFor(c)))
             
         deaders = set()
-        for c in self.live:
+        for c in self.alive:
             c.commit()
             if not c.alive:
                 deaders.add(c)
                 
-        return self.live.difference_update(deaders)
+        return self.alive.difference_update(deaders)
