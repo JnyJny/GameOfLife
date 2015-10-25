@@ -26,19 +26,40 @@ class CursesWorld(World):
         for n,fg in enumerate(self.colors):
             curses.init_pair(n+1,fg,COLOR_BLACK)
 
-    def colorForCell(self,cell,cycle=False):
+    def colorForCell(self,cell):
         '''
         '''
-        if cycle:
-            n = (cell.age // 10) % len(self.colors)
-        else:
-            n = min(cell.age // 100,len(self.colors))
+
+        n = min(cell.age // 100,len(self.colors)-1)
+        
         return curses.color_pair(n+1)
 
     def handle_input(self):
         c = self.w.getch()
         if c == ord('q'):
             exit()
+
+    def step(self):
+        t0 = time.time()
+        ret = super(CursesWorld,self).step()
+        t1 = time.time()
+        self.gps = int(1/(t1 - t0))
+        return ret
+            
+    @property
+    def status(self):
+        try:
+            return self._status
+        except AttributeError:
+            pass
+
+        s = ['Q to quit\t',
+             'Generation: {self.generation:<10}',
+             'GPS: {self.gps:>4}/s',
+             'Cells: {a:>5}/{t:<5}']
+            
+        self._status = ' '.join(s)
+        return self._status
 
     def draw(self):
         '''
@@ -48,10 +69,13 @@ class CursesWorld(World):
             for x in range(self.width):
                 c = self[x,y]
                 self.w.addch(y,x,str(c)[0],self.colorForCell(c))
-
-        msg = 'Control-c to quit\tGeneration: {g}'
         
-        self.w.addstr(self.height,2,msg.format(g=self.generation))
+        self.w.addstr(self.height,2,
+                      self.status.format(self=self,
+                                         a=len(self.live),
+                                         t=len(self.cells)))
+
+
         self.w.move(self.height,1)
         self.w.refresh()
 
@@ -63,7 +87,7 @@ class CursesWorld(World):
             while True:
                 if self.generation == stop:
                     break
-                self.handle_input()                
+                self.handle_input()
                 self.step()
                 self.draw()
                 curses.napms(interval)
