@@ -19,7 +19,8 @@ class Cell(object):
         
         self.location = (x,y)
         self.markers = markers
-        self.reset(alive)
+        self.aliveNeighbors = 0
+        self.alive = alive
 
     def __str__(self):
         '''
@@ -79,18 +80,6 @@ class Cell(object):
                            (x-1,  y),            (x+1,  y),
                            (x-1,y+1), (  x,y+1), (x+1,y+1)]
         return self._neighbors
-
-    def reset(self,alive=False):
-        '''
-        :param: alive - optional boolean
-        Reset this cell to it's default state:
-        - Zeros the alive neighbors count.
-        - Updates the cells living status (default is False).
-        - Age is set to zero.
-        '''
-        self.aliveNeighbors = 0
-        self.alive = alive
-
 
     def update(self,aliveNeighbors):
         '''
