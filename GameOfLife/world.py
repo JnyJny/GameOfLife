@@ -85,21 +85,11 @@ class World(object):
         Implements wrapping of x,y coordinates to form an infinite grid.
 
         '''
-        
         x,y = map(int,key)
-        
-        if x < 0:
-            x = self.width + x
-        if x >= self.width:
-            x -= self.width
-            
-        if y < 0:
-            y = self.height + y
-        if y >= self.height:
-            y -= self.height
-            
+        x %= self.width
+        y %= self.height
         return x,y
-
+        
     def __getitem__(self,key):
         '''
         :key: tuple, integer or slice
