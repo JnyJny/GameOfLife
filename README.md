@@ -98,7 +98,7 @@ of the world's implementation into the cell.
 
 The best optimization came when I realized that the world is only
 affected by living cells and I could achieve a more efficient step
-method if I only visited living cells and their immediately
+method if I only visited living cells and their immediate
 surroundings. It is not a perfect solution as a grid could have nearly
 all cells living and thus the number of alive cells would tend to the
 number of total cells. However, that case is pretty rare and the number
@@ -113,11 +113,11 @@ but not too bad for getting the initial state of the world.
 
 The magic happens in the step method:
 
-1. build a set of all the neighbors of all the live cells in the world
-2. process the union of live and neighbor cells
-   a. update each cell with the number of live neighbors it has
-   b. apply the live neighbor count to the cell to drive a state change
-3. Finally, pull out any cells that died from the live set.
+1. Build a set of all the neighbors of all the live cells in the world
+2. Update each cell with the number of live neighbors it has
+2. Apply the live neighbor count to the cell to drive a state change
+3. Finally, pull out any dead cells from the live set.
+4. Rinse and repeat.
 
 In order for a python object to participate in a set container, it needs
 to implement a __hash__ method which should return a unique hash value
