@@ -17,12 +17,20 @@ class World(object):
     '''
     
     @classmethod
-    def fromString(cls,worldString):
-        pass
+    def fromString(cls,worldString,CellClass=None,rule=None,eol='\n'):
+        '''
+        XXX missing doc string
+        '''
+        w = cls(CellClass,0,0,)
+        w.add(worldString,0,0,rule=rule,eol=eol,resize=True)
 
     @classmethod
-    def fromFile(cls,fileName):
-        pass
+    def fromFile(cls,fileobj,CellClass=None,rule=None,eol='\n'):
+        '''
+        XXX missing doc string
+        '''
+        w = cls(CellClass,0,0)
+        w.read(fileobj,rule=rule,eol=eol)
     
     def __init__(self,CellClass=None,width=80,height=23):
         '''
@@ -90,6 +98,8 @@ class World(object):
         '''
         :param: fileobj - File-like object or string
         :return: number of bytes written
+
+        XXX missing doc string
         '''
         try:
             nbytes = fileobj.write(str(self))
@@ -100,20 +110,16 @@ class World(object):
         nbytes = f.write(str(self))
         return nbytes
 
-    def read(self,fileobj,eol='\n',rule=None):
+    def read(self,fileobj,rule=None,eol='\n'):
         '''
+        XXX missing doc string
         '''
         try:
             s = fileobj.read()
         except AttributeError:
             f = open(fileobj,'r')
             s = f.read()
-
-        self.height = s.count(eol)
-        self.width  = max([len(l) for l in s.split(eol)])
-        self.reset()
-        self.add(s,0,0,eol=eol,rule=rule)
-
+        self.add(s,0,0,rule=rule,eol=eol,resize=True)
 
     def _clamp(self,key):
         '''
@@ -191,13 +197,15 @@ class World(object):
             c.commit()
 
             
-    def add(self,pattern,x=0,y=0,rule=None,eol='\n'):
+    def add(self,pattern,x=0,y=0,rule=None,eol='\n',resize=False):
         '''
-        :param: pattern - string
+        :param: pattern - string 
         :param: x - integer
         :param: y - integer
         :param: rule - function with signature 'f(x) returns boolean'
         :param: eol - character that marks the end of a line in the string
+        :param: resize - boolean, resizes world to pattern
+
         :return: set of visited cells
 
         This method uses the pattern string to affect the alive/dead
@@ -210,6 +218,11 @@ class World(object):
         how to interpret each item in the string in terms of alive or dead.
 
         '''
+
+        if resize:
+            self.height = len(pattern.split(eol))
+            self.width  = max([len(l) for l in pattern.split(eol)])
+            self.reset()
 
         if rule is None:
             rule = lambda x: not x.isspace()
