@@ -1,7 +1,7 @@
 # GameOfLife
 Conway's Game of Life - Cellular Automata in Python
 
-![](https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/demo-4.gif)
+![][2]
 
 This is one of those things that everybody writes once to just
 see how it's done. Wikipedia was very helpful for getting
@@ -161,4 +161,4 @@ $ CGameOfLife.py glider,10,10 pulsar,0,0 lws,0,20
 
 
 [1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
-
+[2]: https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/demo-4.gif
