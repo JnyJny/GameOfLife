@@ -14,15 +14,22 @@ from curses import ( COLOR_BLACK, COLOR_BLUE, COLOR_CYAN,
 
 class CursesWorld(World):
     '''
+    Display a Game of Life in a terminal window using curses.
     '''
 
     colors = [COLOR_WHITE,COLOR_YELLOW,COLOR_MAGENTA,
               COLOR_CYAN,COLOR_RED,COLOR_GREEN,COLOR_BLUE]
 
-    def __init__(self,cellClass=None,window=None):
+    def __init__(self,window,cellClass=None):
+        '''
+        :param: window    - curses window
+        :param: cellClass - optional Cell subclass
+        
+        '''
         h,w = window.getmaxyx()
         super(CursesWorld,self).__init__(cellClass,w,h-1)
         self.w = window
+        self.interval = 0
         for n,fg in enumerate(self.colors):
             curses.init_pair(n+1,fg,COLOR_BLACK)
 
@@ -42,61 +49,54 @@ class CursesWorld(World):
         c = self.w.getch()
         if c == ord('q') or c == ord('Q'):
             exit()
-
-    def step(self):
-        '''
-        :return: set of cells current alive
-
-        This method advances the simulation one generation.
-
-        Calculates the number of generations per second (gps)
-        by timing how long the current step took to complete
-        and taking the inverse. 
-
-        '''
-        t0 = time.time()
-        ret = super(CursesWorld,self).step()
-        t1 = time.time()
-        self.gps = int(1/(t1 - t0))
-        return ret
+        if c == ord('+'):
+            self.interval += 10
             
+        if c == ord('-'):
+            self.interval -= 10
+            if self.interval < 0:
+                self.interval = 0
+                
+
     @property
     def status(self):
         '''
         Format string for the status line.
         '''
         try:
-            return self._status
+            return self._status.format(self=self,
+                                       a=len(self.alive),
+                                       t=len(self.cells))
         except AttributeError:
             pass
 
         s = ['Q to quit\t',
-             'Generation: {self.generation:<10}',
-             'GPS: {self.gps:>4}/s',
-             'Cells: {a:>5}/{t:<5}']
+             '{self.generation:>10} G',
+             '{self.gps:>4} G/s',
+             'Census: {a:>5}/{t:<5}',
+             '{self.interval:>4} ms +/-']
             
         self._status = ' '.join(s)
-        return self._status
+        return self._status.format(self=self,
+                                   a=len(self.alive),
+                                   t=len(self.cells))
 
     def draw(self):
         '''
         :return: None
 
-        Updates each character at r,c in the curses window with
+        Updates each character in the curses window with
         the appropriate colored marker for each cell in the world.
 
-        Moves the cursor to bottom-most line, left-most column.
+        Moves the cursor to bottom-most line, left-most column
+        when finished.
         '''
         for y in range(self.height):
             for x in range(self.width):
                 c = self[x,y]
                 self.w.addch(y,x,str(c)[0],self.colorForCell(c))
         
-        self.w.addstr(self.height,2,
-                      self.status.format(self=self,
-                                         a=len(self.alive),
-                                         t=len(self.cells)))
-
+        self.w.addstr(self.height,2,self.status)
 
         self.w.move(self.height,1)
         
@@ -115,28 +115,32 @@ class CursesWorld(World):
         The interval is number of milliseconds to pause between generations.
         The default value of zero allows the simulation to run as fast as
         possible.
-
         '''
         self.w.clear()
+        self.interval = interval
+        self.gps = 0
         try:
             while True:
                 if self.generation == stop:
                     break
                 self.handle_input()
+                t0 = time.time()
                 self.step()
                 self.draw()
                 
                 self.w.refresh()
                 
-                if interval:
-                    curses.napms(interval)
+                if self.interval:
+                    curses.napms(self.interval)
+                t1 = time.time()
+                self.gps = int(1/(t1-t0))
         except KeyboardInterrupt:
             pass
         
 
 def main(stdscr,argv):
 
-    w = CursesWorld(window=stdscr)
+    w = CursesWorld(stdscr)
 
     if len(argv) == 1:
         raise ValueError("no patterns specified.")
