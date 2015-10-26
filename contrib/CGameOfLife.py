@@ -33,6 +33,15 @@ class CursesWorld(World):
         for n,fg in enumerate(self.colors):
             curses.init_pair(n+1,fg,COLOR_BLACK)
 
+    @property
+    def gps(self):
+        try:
+            return self._gps
+        except AttributeError:
+            pass
+        self._gps = 0
+        return self._gps
+
     def colorForCell(self,cell):
         '''
         Returns a curses color_pair for a cell, chosen by the cell's age.
@@ -118,7 +127,6 @@ class CursesWorld(World):
         '''
         self.w.clear()
         self.interval = interval
-        self.gps = 0
         try:
             while True:
                 if self.generation == stop:
@@ -127,9 +135,7 @@ class CursesWorld(World):
                 t0 = time.time()
                 self.step()
                 self.draw()
-                
                 self.w.refresh()
-                
                 if self.interval:
                     curses.napms(self.interval)
                 t1 = time.time()
