@@ -61,6 +61,14 @@ class CursesWorld(World):
     def handle_input(self):
         '''
         Accepts input from the user and acts on it.
+        
+        Key        Action
+        -----------------
+        q          exit()
+        Q          exit()
+        +          increase redraw interval by 10 milliseconds
+        -          decrease redraw interval by 10 milliseconds
+
         '''
         c = self.w.getch()
         if c == ord('q') or c == ord('Q'):
