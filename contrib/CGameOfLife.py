@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Conway's Game of Life
+'''Conway's Game of Life in a Curses Terminal Window
+'''
 
 import curses
 import time
@@ -10,7 +11,6 @@ from GameOfLife import World, Cell, Patterns
 from curses import ( COLOR_BLACK, COLOR_BLUE, COLOR_CYAN,
                      COLOR_GREEN, COLOR_MAGENTA, COLOR_RED,
                      COLOR_WHITE, COLOR_YELLOW )
-                     
 
 class CursesWorld(World):
     '''
@@ -35,6 +35,9 @@ class CursesWorld(World):
 
     @property
     def gps(self):
+        '''
+        Generations per second.
+        '''
         try:
             return self._gps
         except AttributeError:
@@ -128,6 +131,15 @@ class CursesWorld(World):
         The interval is number of milliseconds to pause between generations.
         The default value of zero allows the simulation to run as fast as
         possible.
+
+        The simulation is displayed via curses in a terminal window and
+        displays a status line at the bottom of the window.
+
+        The simulation can be stopped by the user pressing the keys 'q' or
+        'Q'. The interval between simulation steps can be increased with
+        the plus key '+' or decreased with the minus key '-' by increments
+        of 10 milliseconds.
+
         '''
         self.w.clear()
         self.interval = interval
