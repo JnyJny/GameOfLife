@@ -117,10 +117,10 @@ class Cell(object):
         try:
             return self.alive + other.alive
         except AttributeError:
-             self.__radd__(other)
+            return self.__radd__(other)
 
     def __radd__(self,other):
         '''
         Return value + self.alive
         '''
-        return self.alive + other
+        return other + self.alive
