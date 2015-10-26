@@ -110,7 +110,7 @@ def main(stdscr,argv):
                 x,y = map(int,where.split(','))
         except:
             pass
-        w.add(Patterns[name],x,y)
+        w.addPattern(Patterns[name],x,y)
 
     stdscr.nodelay(True)
         
