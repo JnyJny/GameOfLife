@@ -29,6 +29,18 @@ for _ in [ static, movers, blinkers, factories ]:
     Patterns.update(_)
 
 
+class Pattern(object):
+    pass
+
+
+def pattern_dimesions(pattern):
+    '''
+    :return: tuple(nRows,nColumns)
+
+    '''
+    return len(pattern),max([len(r) for r in pattern])
+
+
 def rotate_90(pattern,ccw=False):
     '''
     :param: pattern - list of strings
@@ -36,9 +48,8 @@ def rotate_90(pattern,ccw=False):
     :return: list of strings
 
     '''
-
-    nRows = len(pattern)
-    nCols = max([len(r) for r in pattern])
+    
+    nRows,nCols = pattern_dimensions(pattern)
 
     for y in range(nRows):
         for x in range(nCols):
