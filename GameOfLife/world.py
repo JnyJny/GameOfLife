@@ -1,4 +1,6 @@
+
 from . import Cell
+from .patterns import Patterns as BuiltinPatterns
 
 class World(object):
     '''
@@ -22,7 +24,8 @@ class World(object):
         XXX missing doc string
         '''
         w = cls(CellClass,0,0,)
-        w.add(worldString,0,0,rule=rule,eol=eol,resize=True)
+        w.addPattern(worldString,0,0,rule=rule,eol=eol,resize=True)
+        return w
 
     @classmethod
     def fromFile(cls,fileobj,CellClass=None,rule=None,eol='\n'):
@@ -31,6 +34,7 @@ class World(object):
         '''
         w = cls(CellClass,0,0)
         w.read(fileobj,rule=rule,eol=eol)
+        return w
     
     def __init__(self,CellClass=None,width=80,height=23):
         '''
@@ -115,18 +119,18 @@ class World(object):
         XXX missing doc string
         '''
         try:
-            s = fileobj.read()
+            pattern = fileobj.read()
         except AttributeError:
             f = open(fileobj,'r')
-            s = f.read()
-        self.add(s,0,0,rule=rule,eol=eol,resize=True)
+            pattern = f.read()
+            
+        self.addPattern(pattern,resize=True)
 
     def _clamp(self,key):
         '''
         :param: key - tuple of x,y integer values
 
-        Implements wrapping of x,y coordinates to form an infinite grid.
-
+        Implements wrapping of x,y coordinates to form an wrapping grid.
         '''
         x,y = map(int,key)
         x %= self.width
@@ -197,14 +201,14 @@ class World(object):
             c.commit()
 
             
-    def add(self,pattern,x=0,y=0,rule=None,eol='\n',resize=False):
+    def addPattern(self,pattern,x=0,y=0,rule=None,eol='\n',resize=False):
         '''
         :param: pattern - string 
-        :param: x - integer
-        :param: y - integer
-        :param: rule - function with signature 'f(x) returns boolean'
-        :param: eol - character that marks the end of a line in the string
-        :param: resize - boolean, resizes world to pattern
+        :param: x - optional integer
+        :param: y - optional integer
+        :param: rule - optional function with signature 'f(x) returns boolean'
+        :param: eol - optional character that marks the end of a line in the string
+        :param: resize - optional boolean, resizes world to pattern
 
         :return: set of visited cells
 
@@ -219,13 +223,18 @@ class World(object):
 
         '''
 
+        try:
+            pattern =  BuiltinPatterns[pattern]
+        except KeyError:
+            pass
+
+        if rule is None:
+            rule = lambda c: not c.isspace()
+
         if resize:
             self.height = len(pattern.split(eol))
             self.width  = max([len(l) for l in pattern.split(eol)])
             self.reset()
-
-        if rule is None:
-            rule = lambda x: not x.isspace()
         
         visited = set()
         for Y,line in enumerate(pattern.split(eol)):
@@ -273,11 +282,14 @@ class OptimizedWorld(World):
         self.alive.clear()
         self.alive.update(set([c for c in self if c.alive]))
 
-    def add(self,pattern,x=0,y=0):
+    def addPattern(self,pattern,**kwds):
         '''
-        :param: pattern - string
-        :param: x - integer
-        :param: y - integer
+        :param: pattern - string 
+        :param: x - optional integer
+        :param: y - optional integer
+        :param: rule - optional function with signature 'f(x) returns boolean'
+        :param: eol - optional character that marks the end of a line in the string
+        :param: resize - optional boolean, resizes world to pattern
         :return: None
 
         This method uses the pattern string to affect the alive/dead
@@ -289,13 +301,13 @@ class OptimizedWorld(World):
         Updates the set of live cells.
         '''
         
-        visited = super(OptimizedWorld,self).add(pattern,x,y)
+        visited = super(OptimizedWorld,self).addPattern(pattern,**kwds)
         
         self.alive.update(set([c for c in visited if c.alive]))
     
     def step(self):
         '''
-        :return: current set of live cells
+        :return: set of cells currently alive
 
         This method advances the simulation one generation.
 
