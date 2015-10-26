@@ -41,6 +41,10 @@ class CursesWorld(World):
             pass
         self._gps = 0
         return self._gps
+    
+    @gps.setter
+    def gps(self,newValue):
+        self._gps = int(newValue)
 
     def colorForCell(self,cell):
         '''
@@ -139,7 +143,7 @@ class CursesWorld(World):
                 if self.interval:
                     curses.napms(self.interval)
                 t1 = time.time()
-                self.gps = int(1/(t1-t0))
+                self.gps = 1/(t1-t0)
         except KeyboardInterrupt:
             pass
         
