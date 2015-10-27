@@ -1,6 +1,6 @@
 
 TARGET= GameOfLife
-VERSION= 0.0.8
+VERSION= 0.0.12
 QVERSION= "'${VERSION}'"
 VERSION_FILE= VERSION
 
@@ -16,7 +16,6 @@ README = README.md
 
 TMPFILES= VERSION dist build ${TARGET}.egg-info
 
-NOSETESTS= nosetests
 SED = sed
 RM = rm
 MV = mv
@@ -29,6 +28,7 @@ all:
 	@echo "make sdist   - creates a source distribution"
 	@echo "make bdist   - creates a binary distribution"
 	@echo "make test    - runs unit tests"
+	@echo "make upload  - uploads bdist_wheel to PYPI=${PYPI}"
 	@echo "make clean   - removes all derived files and directories"
 
 update:
@@ -41,14 +41,20 @@ update:
 sdist:
 	${PYSETUP} build sdist
 
-bdist:
+wheel:
 	${PYSETUP} build bdist_wheel
 
+bdist:
+	${PYSETUP} build bdist
+
 test:
-	${NOSETESTS}
+	${PYSETUP} test
+
+# switch to twine?
 
 upload:
 	$(PYSETUP) bdist_wheel upload -r ${PYPI}
+
 
 clean:
 	@${PYSETUP} clean
