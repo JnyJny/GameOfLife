@@ -8,8 +8,27 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here,'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+
+long_description = '''
+GameOfLife is a python3 package that provides two classes
+that together implement Conway's Game of Life.
+
+Install the GameOfLife package using pip::
+   
+   $ sudo pip3 install GameOfLife
+   
+
+Or clone the git repository::
+   
+   $ git clone https://github.com/JnyJny/GameOfLife.git
+   $ cd GameOfLife
+   $ sudo python3 setup.py install
+
+Also included in the package is CGameOfLife, a python script that
+displays the simulation in a terminal window using curses.
+
+Old skool is best skool.
+'''
 
 try:    
     with open(path.join(here,'VERSION'), encoding='utf-8') as f:
@@ -17,11 +36,14 @@ try:
 except FileNotFoundError:
     version = '0.0.0'
 
+GITHUB='https://github.com/JnyJny/GameOfLife'
+
 setup(name='GameOfLife',
       version=version,
       description = "Conway's Game of Life - Cellular Automata.",
       long_description = long_description,
-      url = 'https://github.com/JnyJny/GameOfLife',
+      url = GITHUB,
+      download_url = GITHUB,
       author="Erik O'Shaughnessy",
       author_email="erik.oshaughnessy@gmail.com",
       license='MIT',
@@ -33,7 +55,7 @@ setup(name='GameOfLife',
                     'Programming Language :: Python :: 3',
                     'Programming Language :: Python :: 3.4'],
       keywords = 'conway game life cellular automata',
-      packages = find_packages(exclude=['contrib','docs','tests','bin']),
+      packages = find_packages(exclude=['contrib','tests']),
       scripts = ['contrib/CGameOfLife.py'],
       install_requires = [],
       extras_require = {},
