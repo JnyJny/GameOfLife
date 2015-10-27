@@ -1,7 +1,7 @@
 # GameOfLife
 Conway's Game of Life - Cellular Automata in Python
 
-This is a python package that provides two classes
+This is a python3 package that provides two classes
 that together implement Conway's Game of Life. 
 
 ```
@@ -29,8 +29,9 @@ $ cd GameOfLife
 $ python3 setup.py install
 ```
 
-I've provided ```CGameOfLife```, a python script that displays
-the simulation in a terminal window using curses.  Old skool.
+I've provided ```contrib/CGameOfLife```, a python script that
+displays the simulation in a terminal window using curses.
+Old skool.
 
 ```
 $ CGameOfLife.py [pattern_name[,X,Y]] ...
@@ -57,12 +58,13 @@ $ CGameOfLife.py glider,10,10 pulsar,0,0 lws,0,20
 There are lots of ways of representing a Game of Life board but I
 decided to write it as a two dimensional grid of cell objects. The
 grid would organize the cells and the cells would implement the
-rules that would determine their state: alive or dead. 
+rules that would determine their state: alive or dead. The grid
+is called the ```World``` and the cells are called... ```Cell```.
 
 The first problem, of course, is that python doesn't have a native two
 dimensional grid object. I picked a list object as my foundational
-grid object and overrode the __getitem__ method to implement accessing
-elements using x and y coordinates.
+grid object and overrode the ```__getitem__``` method to implement
+accessing elements using x and y coordinates.
 
 This also made it easier to implement an infinite grid by wrapping
 the edges when accessed by (x,y) and still allowed iterating through
@@ -95,7 +97,7 @@ new row.
 ### Optimizations
 
 After I wrote it and started thinking about optimizations, I began
-to think about replacing the Cell model with a numpy array to take
+to think about replacing the ```Cell``` model with a numpy array to take
 advantage of presumably optimized array accessors.  Or even just an
 array of characters and letting the character value encode the cell
 state in a more compact (and obtuse) manner. Those changes are pretty
