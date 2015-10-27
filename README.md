@@ -121,11 +121,10 @@ number of total cells. However, that case is pretty rare and the number
 of live cells is usually much less than the total number of cells in
 the world.
 
-I added a new class, WorldOpt, and overrode only a couple of methods
-on World: reset, add, and step. I then imbued the class with a new
-property, a set named live which is initialized with all the live cells
-in the add method. This is a N cell scan, so should be avoided in loops
-but not too bad for getting the initial state of the world.
+I added a new class, ```OptimizedWorld```, and overrode only a couple
+of methods on ```World```: reset, add, and step. I then imbued the
+class with a new property, a set named ```alive``` which is
+initialized with all the live cells in the ```addPattern``` method. 
 
 The magic happens in the step method:
 
@@ -135,23 +134,17 @@ The magic happens in the step method:
 3. Finally, pull out any dead cells from the live set.
 4. Rinse and repeat.
 
-In order for a python object to participate in a set container, it needs
-to implement a __hash__ method which should return a unique hash value
-for the object. One lesson I learned was caching the hash value of an
-object is much more efficient that computing the hash value everytime
-the method is called. I suppose this is not a valid optimization for
-object's whose hash value can mutate over time, however my cells do not
-migrate around the world and the uniqueness of the hash is driven by
-the location of the cell.
+In order for a python object to participate in a set container, it
+needs to implement a ```__hash__``` method which should return a
+unique hash value for the object. One lesson I learned: cache the hash
+value of an object. It is much more efficient that computing the hash
+value everytime the method is called. I suppose this is not a valid
+optimization for object's whose hash value can mutate over time,
+however cells do not migrate around the world and the uniqueness of
+the hash is driven by the location of the cell.
 
 This optimization resulted in some very impressive gains in speed;
 from roughly 10 generations a second to around 100 generations a second.
-
-Some interesting additions might be to compute a generations/sec metric
-and display it on the status line.
-
-
-
 
 [1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 [2]: https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/demo-4.gif
