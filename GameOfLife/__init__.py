@@ -9,13 +9,13 @@ world populated with cells.
 __author__ = '\n'.join(["Erik O'Shaughnessy",
                         'erik.oshaughnessy@gmail.com',
                         'https://github.com/JnyJny/GameOfLife'])
-__version__ = "0.0.11"
+__version__ = "0.0.12"
 
 from .cell import Cell as Cell
 from .world import OptimizedWorld as World
 from .patterns import Patterns as Patterns
 
-__all__ = [ 'Cell','World','Patterns']
+__all__ = [ 'Cell','World','Patterns','tests']
 
 
 
