@@ -99,6 +99,9 @@ clean:
 	@${PYSETUP} clean
 	@${RM} -rf ${TMPFILES}
 
+register:
+	$(PYSETUP) register -r ${PYPI}
+
 # switch to twine?
 upload:
 	$(PYSETUP) bdist_wheel upload -r ${PYPI}
