@@ -62,8 +62,6 @@ target/
 .#*
 *#
 
-VERSION
-
 
 # html files produced while looking at rendered markdown
 *.html
