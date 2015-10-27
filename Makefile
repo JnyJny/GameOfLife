@@ -26,6 +26,7 @@ README = README.md
 
 TMPFILES= VERSION dist build ${TARGET}.egg-info
 
+GIT = git
 SED = sed
 RM = rm
 MV = mv
@@ -44,6 +45,13 @@ all:
 	@echo ""
 	@echo "make test-install - pip install from PYPI=${PYPI}"
 	@echo "make test-upgrade - pip upgrade from PYPI=${PYPI}"
+	@echo ""
+	@echo "Update workflow:"
+	@echo "----------------"
+	@echo "make bump_"
+	@echo "make update"
+	@echo "make tag"
+	@echo "make upload"
 	@echo ""
 
 
@@ -68,11 +76,12 @@ update:
 	@${MV} ${PKG_INIT}.tmp ${PKG_INIT}
 	@${SED} -e ${UPDTRDME} ${README} > ${README}.tmp
 	@${MV} ${README}.tmp ${README}
-
+	@${GIT} add .
+	@${GIT} commit -m ${VERSION}
 
 tag:
-	git tag ${VERSION}
-	git push origin ${VERSION}
+	${GIT} tag ${VERSION}
+	${GIT} push origin ${VERSION}
 
 sdist:
 	${PYSETUP} build sdist
