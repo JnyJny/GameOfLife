@@ -36,17 +36,20 @@ try:
 except FileNotFoundError:
     version = '0.0.0'
 
+download_url = 'https://github.com/JnyJny/GameOfLife/archive/{}.tar.gz'
+
 setup(name='GameOfLife',
       version=version,
       description = "Conway's Game of Life - Cellular Automata.",
       long_description = long_description,
       url = 'https://github.com/JnyJny/GameOfLife',
-      download_url = 'https://github.com/JnyJny/GameOfLife/archive/master.zip',
+      download_url = download_url.format(version),
       author="Erik O'Shaughnessy",
       author_email="erik.oshaughnessy@gmail.com",
       license='MIT',
       classifiers=[ 'Development Status :: 3 - Alpha',
                     'Intended Audience :: Developers',
+                    'Operating System :: POSIX',
                     'Environment :: Console :: Curses',
                     'Topic :: Software Development :: Libraries :: Python Modules',
                     'Topic :: Scientific/Engineering :: Mathematics',
