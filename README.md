@@ -1,14 +1,56 @@
 # GameOfLife
 Conway's Game of Life - Cellular Automata in Python
 
-![][2]
+This is a python package that provides two classes
+that together implement Conway's Game of Life. 
 
-This is one of those things that everybody writes once to just
-see how it's done. Wikipedia was very helpful for getting
-the [basics of the game][1] down.
+```
+>>> from GameOfLife import *
+>>> w = World()
+>>> w.addPattern('glider')
+>>> while True:
+>>>     w.step()
+>>>     print(w)
+```
 
-I've implemented the Game in a python module ```GameOfLife``` and
-included a curses player written in python as an example consumer.
+## Install
+
+You can use pip to install ```GameOfLife``` (soon):
+
+```
+$ sudo pip3 install GameOfLife
+```
+
+You can clone this repository
+
+```
+$ git clone http://github.com/JnyJny/GameOfLife.git
+$ cd GameOfLife
+$ python3 setup.py install
+```
+
+I've provided ```CGameOfLife```, a python script that displays
+the simulation in a terminal window using curses.  Old skool.
+
+```
+$ CGameOfLife.py [pattern_name[,X,Y]] ...
+...
+$ CGameOfLife.py foo
+unknown pattern: 'foo'
+known patterns:
+	block
+	lws
+	toad
+	pulsar
+	loaf
+	glider
+	blinker
+	beehive
+	beacon
+	boat
+$ CGameOfLife.py glider,10,10 pulsar,0,0 lws,0,20
+...	
+```
 
 ## Design
 
@@ -42,43 +84,15 @@ as a frame buffer type data structure, with one frame indicating the
 n-th step and the other frame the n+1-th step. It's a classic space
 for time trade off.
 
-## Simple Usage and Patterns
+### Patterns
 
-I have provided a few simple patterns to prove that the simulation
-is working.
+I have provided a few simple patterns to prove that the simulation is
+working. The ```Patterns``` dictionary is keyed with each pattern's
+name and then a string representing cell states: spaces are not-alive
+cells, non-spaces are alive cells. A newline in the string indicates a
+new row.
 
-```python
-from GameOfLife import *
-w = World()
-w.add(Patterns['glider'])
-w.step()
-print(w)
-```
-
-The Patterns dictionary is keyed with each pattern's name and
-then a string representing cell states: spaces are not-alive cells,
-non-spaces are alive cells. A newline in the string indicates
-a new row.
-
-For instance a glider would look like:
-
-```python
-glider = '''
- x 
-  x
-xxx
-''' 
-```
-
-Or the compact version I chose for the dictionary:
-
-```python
- Patterns = { 'glider':' x \n  x\nxxxx',
-              ...
-		    }
-```
-
-## Optimizations
+### Optimizations
 
 After I wrote it and started thinking about optimizations, I began
 to think about replacing the Cell model with a numpy array to take
@@ -134,30 +148,7 @@ from roughly 10 generations a second to around 100 generations a second.
 Some interesting additions might be to compute a generations/sec metric
 and display it on the status line.
 
-###Usage
 
-CGameOfLife is a python script that uses curses to draw the world in a
-terminal screen. 
-
-```
-$ CGameOfLife.py [pattern_name[,X,Y]] ...
-...
-$ CGameOfLife.py foo
-unknown pattern: 'foo'
-known patterns:
-	block
-	lws
-	toad
-	pulsar
-	loaf
-	glider
-	blinker
-	beehive
-	beacon
-	boat
-$ CGameOfLife.py glider,10,10 pulsar,0,0 lws,0,20
-...	
-```
 
 
 [1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
