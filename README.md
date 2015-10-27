@@ -15,7 +15,7 @@ that together implement Conway's Game of Life.
 
 ## Install
 
-You can use pip to install ```GameOfLife``` (soon):
+You can use pip to install ```GameOfLife```:
 
 ```
 $ sudo pip3 install GameOfLife
@@ -24,7 +24,7 @@ $ sudo pip3 install GameOfLife
 You can clone this repository
 
 ```
-$ git clone http://github.com/JnyJny/GameOfLife.git
+$ git clone https://github.com/JnyJny/GameOfLife.git
 $ cd GameOfLife
 $ python3 setup.py install
 ```
