@@ -1,6 +1,6 @@
 
 TARGET= GameOfLife
-VERSION= 0.0.13
+VERSION= 0.0.14
 QVERSION= "'${VERSION}'"
 VERSION_FILE= VERSION
 
@@ -24,9 +24,10 @@ UPDTINIT = 's/__version__.*=.*/__version__ = ${QVERSION}/'
 UPDTRDME = 's/Version: .*/Version: ${VERSION}/'
 
 all:
-	@echo "make update  - updates the version"
+	@echo "make update  - updates the version VERSION=${VERSION}"
 	@echo "make sdist   - creates a source distribution"
 	@echo "make bdist   - creates a binary distribution"
+	@echo "make wheel   - creates a wheel distribution"
 	@echo "make test    - runs unit tests"
 	@echo "make upload  - uploads bdist_wheel to PYPI=${PYPI}"
 	@echo "make clean   - removes all derived files and directories"
@@ -37,6 +38,12 @@ update:
 	@${MV} ${PKG_INIT}.tmp ${PKG_INIT}
 	@${SED} -e ${UPDTRDME} ${README} > ${README}.tmp
 	@${MV} ${README}.tmp ${README}
+
+tag:
+	git add ${PKG_INIT}
+	git commit -m "Version ${VERSION}"
+	git tag ${VERSION}
+	git push origin ${VERSION}
 
 sdist:
 	${PYSETUP} build sdist
