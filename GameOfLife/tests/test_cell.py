@@ -1,5 +1,4 @@
 
-
 import unittest
 
 from GameOfLife import Cell
@@ -16,9 +15,6 @@ class CellTestCase(unittest.TestCase):
             self.assertEqual(obj.alive,alive)
         if markers is not None:
             self.assertEqual(obj.markers,markers)
-
-
-class CellCreationTestCase(CellTestCase):
 
     def testCellCreation(self):
 
@@ -41,7 +37,6 @@ class CellCreationTestCase(CellTestCase):
         cell.alive = True
         self.assertTrue(str(cell) == markers[1])
 
-class CellPropertyTestCase(CellTestCase):
 
     def testCellAliveProperty(self):
         cell = Cell(0,0)
@@ -59,8 +54,6 @@ class CellPropertyTestCase(CellTestCase):
         cell = Cell(x,y)
 
         self.assertEqual(len(cell.neighbors),8)
-
-class CellMethodsTestCase(CellTestCase):
 
     def testCellUpdateMethod(self):
 

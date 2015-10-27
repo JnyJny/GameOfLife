@@ -4,7 +4,6 @@ import unittest
 from GameOfLife import Cell, Patterns
 from GameOfLife.world import World, OptimizedWorld
 
-
 class WorldTestCase(unittest.TestCase):
 
     def assertIsWorld(self,obj,width=None,height=None,cellClass=None):
@@ -27,7 +26,6 @@ class WorldTestCase(unittest.TestCase):
         for c in obj:
             self.assertIsInstance(c,obj.cellClass)
 
-class WorldCreationTestCase(WorldTestCase):
 
     def testWorldCreation(self):
         
@@ -47,14 +45,11 @@ class WorldCreationTestCase(WorldTestCase):
                            width=dim,height=dim,cellClass=TestCell)
 
 
-class WorldPropertiesTestCase(WorldTestCase):
-
     def testCellsProperty(self):
         w = World()
         self.assertIsInstance(w.cells,list)
         self.assertEqual(len(w.cells),w.width * w.height)
 
-class WorldClassMethodsTestCase(WorldTestCase):
 
     def testFromFile(self):
         pass
@@ -62,7 +57,6 @@ class WorldClassMethodsTestCase(WorldTestCase):
     def testFromString(self):
         pass
         
-class WorldInstanceMethodsTestCase(WorldTestCase):
 
     def testWriteMethod(self):
         pass
@@ -174,18 +168,14 @@ class WorldInstanceMethodsTestCase(WorldTestCase):
 
             self.assertEqual(len([cell for cell in world if cell.alive]),
                              nAlivePatternCells,
-                             'pattern {pattern}'.format(pattern=pattern))            
+                             'pattern {pattern}'.format(pattern=pattern))
             
         # XXX test x,y, rule, eol and resize
-        
 
-
-class OptimizedWorldPropertiesTestCase(WorldTestCase):
+class OptimizedWorldTestCase(WorldTestCase):
 
     def testAliveProperty(self):
         pass
-
-class OptimizedWorldInstanceMethodsTestCase(WorldTestCase):
 
     def testResetMethod(self):
         pass
