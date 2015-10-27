@@ -18,7 +18,7 @@ PYTHON=python3
 SETUP= setup.py
 PYSETUP= ${PYTHON} ${SETUP}
 
-PYPI= pypitest
+PYPI= testpypi
 
 PKG_ROOT= ${TARGET}
 PKG_INIT = ${PKG_ROOT}/__init__.py
@@ -31,16 +31,20 @@ RM = rm
 MV = mv
 
 all:
-	@echo "make sdist      - creates a source distribution"
-	@echo "make bdist      - creates a binary distribution"
-	@echo "make wheel      - creates a wheel distribution"
-	@echo "make test       - runs unit tests"
-	@echo "make upload     - uploads bdist_wheel to PYPI=${PYPI}"
-	@echo "make clean      - removes all derived files and directories"
-	@echo "make bump_major - increment the major version number MAJOR=${MAJOR}"
-	@echo "make bump_minor - increment the minor version number MINOR=${MINOR}"
-	@echo "make bump_point - increment the point version number POINT=${POINT}"
-	@echo "make update     - updates the version VERSION=${VERSION}"
+	@echo "make sdist        - creates a source distribution"
+	@echo "make bdist        - creates a binary distribution"
+	@echo "make wheel        - creates a wheel distribution"
+	@echo "make test         - runs unit tests"
+	@echo "make upload       - uploads bdist_wheel to PYPI=${PYPI}"
+	@echo "make clean        - removes all derived files and directories"
+	@echo "make bump_major   - increment version major number MAJOR=${MAJOR}"
+	@echo "make bump_minor   - increment version minor number MINOR=${MINOR}"
+	@echo "make bump_point   - increment version point number POINT=${POINT}"
+	@echo "make update       - updates the version VERSION=${VERSION}"
+	@echo ""
+	@echo "make test-install - pip install from PYPI=${PYPI}"
+	@echo "make test-upgrade - pip upgrade from PYPI=${PYPI}"
+	@echo ""
 
 
 bump_major:
@@ -82,11 +86,27 @@ bdist:
 test:
 	${PYSETUP} test -q
 
-# switch to twine?
-
-upload:
-	$(PYSETUP) bdist_wheel upload -r ${PYPI}
-
 clean:
 	@${PYSETUP} clean
 	@${RM} -rf ${TMPFILES}
+
+# switch to twine?
+upload:
+	$(PYSETUP) bdist_wheel upload -r ${PYPI}
+
+PIP=pip3
+PIP_FLAGS := --verbose
+PIP_FLAGS := ${PIP_FLAGS} --index-url http://${PYPI}.python.org/pypi
+PIP_FLAGS := ${PIP_FLAGS} --trusted-host ${PYPI}.python.org
+PIP_FLAGS := ${PIP_FLAGS} --proxy=$(HTTPS_PROXY)
+
+test-install:
+	@echo "Testing install..."
+	${PIP} install ${PIP_FLAGS} ${TARGET}
+
+test-upgrade:
+	@echo "Testing upgrade..."
+	${PIP} install --upgrade ${PIP_FLAGS} ${TARGET}
+
+
+
