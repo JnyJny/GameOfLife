@@ -1,12 +1,14 @@
 
 TARGET= GameOfLife
-VERSION= 0.0.1
+VERSION= 0.0.8
 QVERSION= "'${VERSION}'"
 VERSION_FILE= VERSION
 
 PYTHON=python3
 SETUP= setup.py
 PYSETUP= ${PYTHON} ${SETUP}
+
+PYPI= pypitest
 
 PKG_ROOT= ${TARGET}
 PKG_INIT = ${PKG_ROOT}/__init__.py
@@ -44,6 +46,9 @@ bdist:
 
 test:
 	${NOSETESTS}
+
+upload:
+	$(PYSETUP) bdist_wheel upload -r ${PYPI}
 
 clean:
 	@${PYSETUP} clean
