@@ -193,7 +193,7 @@ from roughly 10 generations a second to around 100 generations a second
 measured in the curses CGameOfLife implementation (on a Mid 2014 Mac Book
 Pro with a 2.8Ghz i7, 16G of memory and NVIDIA graphics).
 
-The algorithm is O((alive+neighbors)*2) where normally alive << total
+The algorithm is O((alive+neighbors) x 2) where normally alive << total
 number of cells and neighbors is bounded by [0,alive*8]. I think, my
 algorithm analysis is admittedly rusty. 
 
