@@ -9,7 +9,7 @@ TEST_CELL= ${TESTS}.test_cell
 TEST_WORLD= ${TESTS}.test_world
 TEST_PATTERNS= ${TESTS}.test_patterns
 
-THINGS = ${TARGET} ${CELL} ${WORLD} ${PATTERNS} \
+THINGS = index ${CELL} ${WORLD} ${PATTERNS} \
 	${TESTS} ${TEST_CELL} ${TEST_WORLD} ${TEST_PATTERNS}
 
 HTML = ${THINGS:=.html}
@@ -32,8 +32,9 @@ publish: html
 
 html: ${HTML}
 
-${TARGET}.html: 
+index.html:
 	${PYDOC} ${PYDOCFLAGS} ${TARGET}
+	${MV} ${TARGET}.html $@
 
 ${CELL}.html:
 	${PYDOC} ${PYDOCFLAGS} ${CELL}
