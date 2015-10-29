@@ -24,7 +24,7 @@ PKG_ROOT= ${TARGET}
 PKG_INIT = ${PKG_ROOT}/__init__.py
 README = README.md
 
-TMPFILES= VERSION dist build ${TARGET}.egg-info
+TMPFILES= VERSION dist build ${TARGET}.egg-info docs/*.html
 
 NOSEFLAGS= --with-coverage --cover-tests --cover-html
 
@@ -58,7 +58,6 @@ all:
 	@echo "make upload"
 	@echo ""
 
-
 bump_major:
 	@${SED} "s/^MAJOR[ \t]*=[ \t]*[0-9]*/MAJOR=$(NEWMAJOR)/" \
 	  ${MAKEFILE} > ${MAKEFILE}.tmp
@@ -74,8 +73,10 @@ bump_point:
 	  ${MAKEFILE} > ${MAKEFILE}.tmp
 		@${MV} ${MAKEFILE}.tmp ${MAKEFILE}
 
-update:
+VERSION:
 	@echo ${VERSION} > ${VERSION_FILE}
+
+update: VERSION
 	@${SED} -e ${UPDTINIT} ${PKG_INIT} > ${PKG_INIT}.tmp
 	@${MV} ${PKG_INIT}.tmp ${PKG_INIT}
 	@${SED} -e ${UPDTRDME} ${README} > ${README}.tmp
@@ -86,6 +87,9 @@ update:
 tag:
 	${GIT} tag ${VERSION}
 	${GIT} push origin ${VERSION}
+
+documentation:
+	(cd docs; make)
 
 sdist:
 	${PYSETUP} build sdist
