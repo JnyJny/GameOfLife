@@ -14,13 +14,25 @@ THINGS = ${TARGET} ${CELL} ${WORLD} ${PATTERNS} \
 
 HTML = ${THINGS:=.html}
 
+GIT= git
 RM= rm -f
 PYDOC= pydoc3
 PYDOCFLAGS= -w
 
-all: ${HTML}
+BRANCH= gh-pages
 
-${TARGET}.html:
+
+all:
+	@echo "make html    - generates HTML files using PYDOC=${PYDOC}"
+	@echo "make publish - generates HTML files and pushes BRANCH=${BRANCH}"
+
+
+publish: html
+	git add ${HTML}
+
+html: ${HTML}
+
+${TARGET}.html: 
 	${PYDOC} ${PYDOCFLAGS} ${TARGET}
 
 ${CELL}.html:
@@ -45,4 +57,4 @@ ${TEST_PATTERNS}.html:
 	${PYDOC} ${PYDOCFLAGS} ${TEST_PATTERNS}
 
 clean:
-	@${RM} *.html
+	@${RM} ${HTML} *~
