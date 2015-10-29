@@ -30,15 +30,10 @@ class TwoSixteen(list):
 
 
 class PygameCell(Cell):
-
+    _colors = TwoSixteen()
     @property
     def color(self):
-        try:
-            return self._two16[self.age]
-        except AttributeError:
-            pass
-        self._two16 = TwoSixteen()
-        return self._two16[self.age]
+        return self._colors[self.age]
 
     def draw(self,surface):
         x,y = self.location
@@ -55,9 +50,9 @@ class PygameWorld(World):
         super(PygameWorld,self).__init__(cellClass,width=sz[0],height=sz[1])
         self.screen = screen
         self.buffer = screen.copy() # resize?
-        self.events = {QUIT:exit}
-        self.controls = {K_ESCAPE:exit,
-                         K_q:exit,
+        self.events = {QUIT:self.quit}
+        self.controls = {K_ESCAPE:self.quit,
+                         K_q:self.quit,
                          K_PLUS: self.incInterval,
                          K_MINUS: self.decInterval}
         self.buffer.fill(self.background)
@@ -65,6 +60,8 @@ class PygameWorld(World):
 
     @property
     def background(self):
+        '''
+        '''
         try:
             return self._background
         except AttributeError:
@@ -72,9 +69,10 @@ class PygameWorld(World):
         self._background = TwoSixteen()[0]
         return self._background
 
-
     @property
     def interval(self):
+        '''
+        '''
         try:
             return self._interval
         except AttributError:
@@ -89,9 +87,13 @@ class PygameWorld(World):
             self._interval = 0
 
     def incInterval(self):
+        '''
+        '''
         self.interval += 0.01
 
     def decInterval(self):
+        '''
+        '''
         self.interval -= 0.01
 
     @property
@@ -109,6 +111,31 @@ class PygameWorld(World):
     def gps(self,newValue):
         self._gps = int(newValue)
 
+    @property
+    def status(self):
+        '''
+        '''
+        try:
+            return self._status.format(self=self,
+                                       nAlive=len(self.alive),
+                                       nTotal=len(self.cells))
+        except AttributeError:
+            pass
+
+        s = ['Generations: {self.generation:<}',
+             'Cells Alive: {nAlive}',
+             'Total Cells: {nTotal}']
+
+        self._status = '\n'.join(s)
+        return self._status.format(self=self,
+                                   nAlive=len(self.alive),
+                                   nTotal=len(self.cells))
+
+    def quit(self):
+        '''
+        '''
+        print(self.status)
+        exit()
 
     def handle_input(self):
         '''
@@ -126,10 +153,7 @@ class PygameWorld(World):
             except KeyError:
                 pass
 
-    def status(self):
-        '''
-        '''
-        pass
+
 
     def draw(self):
         '''
@@ -159,6 +183,8 @@ class PygameWorld(World):
 
 
 def usage(argv,msg=None,exit_value=-1):
+    '''
+    '''
     usagefmt = 'usage: {name} [[pattern_name],[X,Y]] ...'
     namefmt = '\t{n}'
     print(usagefmt.format(name=os.path.basename(argv[0])))
@@ -181,14 +207,11 @@ if __name__ == '__main__':
     w = PygameWorld(screen)
 
     for thing in sys.argv[1:]:
-        
         name,_,where = thing.partition(',')
-
         try:
             x,y = map(int,where.split(','))
         except:
             x,y = 0,0
-        print(thing,name,where,x,y)
         w.addPattern(name,x=x,y=y)
 
     w.run()
