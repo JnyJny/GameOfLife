@@ -88,10 +88,6 @@ tag:
 	${GIT} tag ${VERSION}
 	${GIT} push origin ${VERSION}
 
-documentation:
-	(cd docs; make VERSION=${VERSION})
-
-
 sdist:
 	${PYSETUP} build sdist
 
