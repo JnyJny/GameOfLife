@@ -143,12 +143,12 @@ disruptive and I decided to postpone them.
 
 As far as simple but useful optimizations, caching each cell's
 neighbor coordinates traded space for time when calculating the status
-of each cell's neighbors in the step method. This simplifies the step
-method since we don't need to pretend the list is a two dimension
-object and just iterate through all the cells and ask each cell who
+of each cell's neighbors in the ```step``` method. This simplifies the
+method since it isn't necessary to pretend the list is a two dimension
+object; just iterate through all the cells and ask each cell who
 it's neighbors are. A better optimization might be to calculate the 1D
 index rather than the 2D, but I think this brings too much knowledge
-of the world's implementation into the cell.
+of the ```World```'s implementation into the cell.
 
 #### Hash Cache FTW
 
@@ -158,19 +158,19 @@ unique hash value for the object. One lesson I learned: cache the hash
 value of an object. It is much more efficient that computing the hash
 value everytime the method is called. I suppose this is not a valid
 optimization for object's whose hash value can mutate over time,
-however cells do not migrate around the world and the uniqueness of
-the hash is driven by the location of the cell.
+however ```Cell```s do not migrate around the ```World``` and the
+uniqueness of the hash is driven by the location of the cell.
 
 #### Dead Cells Don't Matter
 
-The best optimization came when I realized that the world is only
-affected by living cells and I could achieve a more efficient step
-method if I only visited living cells and their immediate
-surroundings. It is not a perfect solution as a grid could have nearly
-all cells living and thus the number of alive cells would tend to the
-number of total cells. However, that case is pretty rare and the number
-of live cells is usually much less than the total number of cells in
-the world.
+The best optimization came when I realized that the ```World``` is
+only affected by living cells and I could achieve a more efficient
+```step``` method if I only visited living cells and their immediate
+surroundings. It is not a perfect solution as a ```World``` could have
+nearly all cells living and thus the number of alive cells would tend
+to the number of total cells. However, that case is generally rare and
+the number of live cells is usually much less than the total number of
+cells in the world. [Cite needed :]
 
 #### OptimizedWorld
 
