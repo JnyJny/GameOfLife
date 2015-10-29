@@ -32,11 +32,13 @@ $ python3 setup.py install
 I've provided ```contrib/CGameOfLife```, a python script that
 displays the simulation in a terminal window using curses.
 Old skool.
-!(CGameOfLife Demo)[2]
+
+![CGameOfLife Demo][2]
 
 If you have [pygame][4] installed, ```contrib/PGameOfLife``` is
 pretty much the same except drawing to a pygame window.
-!(PGameOfLife Demo)[3]
+
+![PGameOfLife Demo][3]
 
 ```
 $ CGameOfLife.py [pattern_name[,X,Y]] ...
@@ -152,6 +154,6 @@ This optimization resulted in some very impressive gains in speed;
 from roughly 10 generations a second to around 100 generations a second.
 
 [1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
-[2]: https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/CGameOfLife-demo.gif
-[3]: https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/PGameOfLife-demo.gif
+[2]: https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/CGameOfLife-Demo.gif
+[3]: https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/PGameOfLife-Demo.gif
 [4]: http://pygame.org
