@@ -75,9 +75,9 @@ rules that would determine their state: alive or dead. The grid
 is called the ```World``` and the cells are called... ```Cell```.
 
 An obvious drawback of this design is that it is memory inefficient:
-each display element is represented by a Cell object. Assuming a two
+each display element is represented by a ```Cell``` object. Assuming a two
 color display, you would only need one bit per display element to
-model the state of each state. A Cell object is much larger than
+model the state of each state. A ```Cell``` object is much larger than
 that. That said, my goal was to practice writing good objects 
 and then experiencing how this solution would evolve.
 
@@ -139,7 +139,7 @@ array of characters and letting the character value encode the cell
 state in a more compact (and obtuse) manner. Those changes are pretty
 disruptive and I decided to postpone them.
 
-#### Neigbors
+#### Neighbors
 
 As far as simple but useful optimizations, caching each cell's
 neighbor coordinates traded space for time when calculating the status
