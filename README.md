@@ -29,21 +29,28 @@ $ cd GameOfLife
 $ python3 setup.py install
 ```
 
-I've provided ```contrib/CGameOfLife```, a python script that
-displays the simulation in a terminal window using curses.
-Old skool.
+## Examples
+
+I've provided two examples in the contrib directory of the
+repo: CGameOfLife and PGameOfLife. The **C** stands for
+curses and will show a simulation in a terminal window using
+the time-honored curses library. The **P** in PGameOfLife stands
+for [**PyGame**][4] and draws the simulation in a pygame window.
+
+### CGameOfLife Demo
 
 ![CGameOfLife Demo][2]
 
-If you have [pygame][4] installed, ```contrib/PGameOfLife``` is
-pretty much the same except drawing to a pygame window.
+### PGameOfLife Demo
 
 ![PGameOfLife Demo][3]
 
+
+### [CP]GameOfLife Usage
 ```
-$ CGameOfLife.py [pattern_name[,X,Y]] ...
+$ [CP]GameOfLife.py [pattern_name[,X,Y]] ...
 ...
-$ CGameOfLife.py foo
+$ [CP]GameOfLife.py foo
 unknown pattern: 'foo'
 known patterns:
 	block
@@ -56,11 +63,11 @@ known patterns:
 	beehive
 	beacon
 	boat
-$ CGameOfLife.py glider,10,10 pulsar,0,0 lws,0,20
+$ [CP]GameOfLife.py glider,10,10 pulsar,0,0 lws,0,20
 ...	
 ```
 
-## Design
+## Design Notes
 
 There are lots of ways of representing a Game of Life board but I
 decided to write it as a two dimensional grid of cell objects. The
@@ -68,12 +75,19 @@ grid would organize the cells and the cells would implement the
 rules that would determine their state: alive or dead. The grid
 is called the ```World``` and the cells are called... ```Cell```.
 
-The first problem, of course, is that python doesn't have a native two
-dimensional grid object. I picked a list object as my foundational
-grid object and overrode the ```__getitem__``` method to implement
-accessing elements using x and y coordinates.
+An obvious drawback of this design is that it is memory inefficient:
+each display element is represented by a Cell object. Assuming a two
+color display, you would only need one bit per display element to
+model the state of each state. A Cell object is much larger than
+that. That said, my goal was to practice writing good objects 
+and then experiencing how this solution would evolve.
 
-This also made it easier to implement an infinite grid by wrapping
+The first technical problem, of course, is that python doesn't have a
+native two dimensional grid object. I picked a list object as my
+foundational grid object and overrode the ```__getitem__``` method to
+implement accessing elements using x and y coordinates.
+
+This also made it easier to implement an "infinite" grid by wrapping
 the edges when accessed by (x,y) and still allowed iterating through
 all the cells serially.
 
