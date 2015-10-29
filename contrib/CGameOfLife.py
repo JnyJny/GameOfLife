@@ -176,13 +176,11 @@ def main(stdscr,argv):
         raise ValueError("no patterns specified.")
     
     for thing in argv[1:]:
-        x,y = 0,0
         name,_,where = thing.partition(',')
         try:
-            if len(where):
-                x,y = map(int,where.split(','))
+            x,y = map(int,where.split(','))
         except:
-            pass
+            x,y = 0,0    
         w.addPattern(Patterns[name],x=x,y=y)
 
     stdscr.nodelay(True)
