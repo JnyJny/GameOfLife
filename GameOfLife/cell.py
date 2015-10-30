@@ -54,6 +54,15 @@ class Cell(object):
     def alive(self):
         return bool(self.age>0)
 
+    @alive.setter
+    def alive(self,newValue):
+
+        b = bool(newValue)
+        if not b:
+            self.age = 0
+        if self.age == 0 and b:
+            self.age = 1
+
     @property
     def neighbors(self):
         try:
