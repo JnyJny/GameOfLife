@@ -13,6 +13,8 @@ from pygame.locals import *
 
 from GameOfLife import World, Cell, Patterns
 
+_SurfaceDepth = 32
+
 class TwoSixteen(list):
     def __init__(self,*args,**kwds):
         super(TwoSixteen,self).__init__(args,**kwds)
@@ -28,50 +30,125 @@ class TwoSixteen(list):
         key %= len(self)
         return super(TwoSixteen,self).__getitem__(key)
 
-
-class PygameCell(Cell,pygame.sprite.Sprite):
+class ColorCell(Cell):
+    '''
+    '''
     _colors = TwoSixteen()
-    
     @property
     def color(self):
         '''
         Cell foreground color.
         '''
+
+        if self.age == 0:
+            return self._colors[self.age]
+
+        if self.age < 5:
+            return self._colors[1]
+        
         return self._colors[self.age]
 
+   
+class PixelCell(ColorCell):
+
+    @property
+    def size(self):
+        return (1,1)
+    
     def draw(self,surface):
         x,y = self.location
         pygame.gfxdraw.pixel(surface,x,y,self.color)
 
+
+class SpriteCell(ColorCell):
+    
+    def __init__(self,*args,**kwds):
+        '''
+        '''
+        super(SpriteCell,self).__init__(*args,**kwds)
+        try:
+            self.size = kwds['size']
+        except KeyError:
+            pass
+
+    @property
+    def size(self):
+        '''
+        '''
+        try:
+            return self._size
+        except AttributeError:
+            pass
+        self._size = (10,10)
+        return self._size
+
+    @size.setter
+    def size(self,newValue):
+        self._size = newValue
+        del(self._surface)
+
+    @property
+    def surface(self):
+        '''
+        '''
+        try:
+            return self._surface
+        except AttributeError:
+            pass
+        self._surface = pygame.surface.Surface(self.size,depth=_SurfaceDepth)
+        return self._surface
+
+
+class CircleCell(SpriteCell):
+
+    def draw(self,fillColor):
+        '''
+        '''
+        # draw to self.surface and then blit to surface
+        x,y = map(lambda v: v//2,self.size)
+        r = max(self.size) // 2
+        self.surface.fill(fillColor)
+        if self.age:
+            pygame.gfxdraw.filled_circle(self.surface,x,y,r,self.color)
+        return self.surface
         
 class PygameWorld(World):
     '''
     '''
-    def __init__(self,screen,cellClass=PygameCell):
+    def __init__(self,width,height,cellClass=CircleCell):
         '''
         '''
-        sz = screen.get_size()
+        super(PygameWorld,self).__init__(width,height,cellClass)
 
-        
-        
-        super(PygameWorld,self).__init__(cellClass,width=sz[0],height=sz[1])
-        self.screen = screen
-        self.buffer = screen.copy() # resize?
+        self.paused = False
         self.events = {QUIT:self.quit}
         self.controls = {K_ESCAPE:self.quit,
                          K_q:self.quit,
+                         K_SPACE: self.togglePaused,
                          K_PLUS: self.incInterval,
                          K_MINUS: self.decInterval}
-        self.buffer.fill(self.background)
 
     @property
     def screen(self):
+        try:
+            return self._screen
+        except AttributeError:
+            pass
+
+        offx,offy = self[0].size
+        screensz = (self.width*offx,self.height*offy)
+        self._screen = pygame.display.set_mode(screensz,0,_SurfaceDepth)
         return self._screen
 
-    @screen.setter
-    def screen(self,newValue):
-        self._screen = newValue
-        self.buffer = newValue.copy()
+    @property
+    def buffer(self):
+        try:
+            return self._buffer
+        except AttributeError:
+            pass
+        self._buffer = self.screen.copy()
+        self._buffer.fill(self.background)
+        return self._buffer
 
     @property
     def background(self):
@@ -105,11 +182,16 @@ class PygameWorld(World):
         '''
         '''
         self.interval += 0.01
+        print(self.interval,'+')
 
     def decInterval(self):
         '''
         '''
         self.interval -= 0.01
+        print(self.interval,'-')
+
+    def togglePaused(self):
+        self.paused = not self.paused
 
     @property
     def gps(self):
@@ -168,22 +250,25 @@ class PygameWorld(World):
             except KeyError:
                 pass
 
-
-
     def draw(self):
         '''
         '''
         
         self.buffer.fill(self.background)
+
+        x_off,y_off = self[0].size
         
         for cell in self.alive:
-            cell.draw(self.buffer)
+            sprite = cell.draw(self.background)
+            x,y = cell.location
+            dest = pygame.rect.Rect((x*x_off,y*y_off),(x_off,y_off))
+            self.buffer.blit(sprite,dest)
               
         rect = self.screen.blit(self.buffer,(0,0))
         
         return rect
 
-    def run(self,stop=-1,interval=0):
+    def run(self,stop=-1,interval=0.01):
         '''
         '''
 
@@ -191,7 +276,8 @@ class PygameWorld(World):
 
         while self.generation != stop:
             self.handle_input()
-            self.step()
+            if not self.paused:
+                self.step()
             rect = self.draw()
             pygame.display.update(rect)
             time.sleep(self.interval)
@@ -201,25 +287,23 @@ def usage(argv,msg=None,exit_value=-1):
     '''
     '''
     usagefmt = 'usage: {name} [[pattern_name],[X,Y]] ...'
-    namefmt = '\t{n}'
+    namefmt = '\t{}'
     print(usagefmt.format(name=os.path.basename(argv[0])))
     if msg:
         print(msg)
     print('pattern names:')
-    [print(namefmt.format(n=name)) for name in Patterns.keys()]
+    [print(namefmt.format(name)) for name in Patterns.keys()]
     exit(exit_value)
     
 
 if __name__ == '__main__':
 
-    pygame.init()
-
-    screen = pygame.display.set_mode((128,128),0,32)
+    pygame.init()    
 
     if len(sys.argv) == 1:
         usage(sys.argv,"no patterns specified.")
 
-    w = PygameWorld(screen)
+    w = PygameWorld(128,128,cellClass=CircleCell)
 
     for thing in sys.argv[1:]:
         name,_,where = thing.partition(',')
