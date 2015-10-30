@@ -49,48 +49,56 @@ class CellTestCase(unittest.TestCase):
         self.assertFalse(cell.alive)
         self.assertEqual(cell.age,0)
 
-    def testCellNeighborsProperty(self):
+    def testCellNeighborLocationsGeneratorProperty(self):
         x,y = 3,3
         cell = Cell(x,y)
 
-        self.assertEqual(len(cell.neighbors),8)
+        offsets = [(-1,-1),(0,-1),(1,-1),
+                   (-1, 0)       ,(1,0),
+                   (-1, 1),(0, 1),(1,1)]
 
-    def testCellUpdateMethod(self):
+        self.assertEqual(len([loc for loc in cell.neighborLocations]),8)
+        for loc in cell.neighborLocations:
+            a,b = loc[0]-x,loc[1]-y
+            self.assertTrue((a,b) in offsets,'{loc} not in {o}'.format(loc=(a,b),
+                                                                       o=offsets))
 
-        cell = Cell(0,0)
-
+    def testCellThinkMethod(self):
+        
         for n in range(9):
-            cell.update(n)
+            cell = Cell(0,0)
+            cell.neighbors.extend([1]*n)
+            cell.think()
             self.assertEqual(cell.aliveNeighbors,n)
             self.assertFalse(cell.alive)
             self.assertEqual(cell.age,0)
 
-        cell.alive = True
-
+        cell = Cell(0,0,alive=True)
         for n in range(9):
-            cell.update(n)
+            cell.neighbors.clear()
+            cell.neighbors.extend([1]*n)
+            cell.think()
             self.assertEqual(cell.aliveNeighbors,n)
             self.assertTrue(cell.alive)
             self.assertEqual(cell.age,n+1)
 
-    def testCellCommitMethod(self):
-
-        cell = Cell(0,0)
+    def testCellActMethod(self):
 
         for n in range(9):
-            cell.alive = False
-            cell.update(n)
-            cell.commit()
+            cell = Cell(0,0)
+            cell.neighbors.extend([1]*n)
+            cell.think()
+            cell.act()
             if n == 3:
                 self.assertTrue(cell.alive)
             else:
                 self.assertFalse(cell.alive)
 
         for n in range(9):
-            cell.alive = True
-            cell.update(n)
-            cell.commit()
-
+            cell = Cell(0,0,alive=True)
+            cell.neighbors.extend([1]*n)
+            cell.think()
+            cell.act()
             if n in [2,3]:
                 self.assertTrue(cell.alive)
             else:
