@@ -21,6 +21,7 @@ class Cell(object):
         self.markers = markers
         self.aliveNeighbors = 0
         self.alive = alive
+        self.age = 0
 
     def __str__(self):
         '''
@@ -64,32 +65,38 @@ class Cell(object):
         self._alive = bool(newValue)
         if not self._alive:
             self.age = 0
-            
 
     @property
     def neighbors(self):
-        '''
-        A list of this cell's neighbors coordinates, relative to this cell.
-        '''
         try:
             return self._neighbors
         except AttributeError:
             pass
-        x,y = self.location
-        self._neighbors = [(x-1,y-1), (  x,y-1), (x+1,y-1),
-                           (x-1,  y),            (x+1,  y),
-                           (x-1,y+1), (  x,y+1), (x+1,y+1)]
+        self._neighbors = []
         return self._neighbors
 
-    def think(self,aliveNeighbors):
+    @property
+    def neighborLocations(self):
         '''
-        :param: aliveNeighbors - integer
+        '''
+        x,y = self.location
+        yield (x-1,y-1)
+        yield (  x,y-1)
+        yield (x+1,y-1)
+        yield (x-1,  y)
+        yield (x+1,  y)
+        yield (x-1,y+1)
+        yield (  x,y+1)
+        yield (x+1,y+1)
+
+    def think(self):
+        '''
         :return: None
 
         Updates the cell's live neighbor count and increments
         the cells age if it is currently alive.
         '''
-        self.aliveNeighbors = aliveNeighbors
+        self.aliveNeighbors = sum(self.neighbors)
         if self.alive:
             self.age += 1
             
