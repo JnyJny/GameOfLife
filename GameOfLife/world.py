@@ -171,14 +171,8 @@ class World(object):
             for x in range(self.width):
                 self.cells.append(self.cellClass(x,y))
 
-    def neighborsFor(self,cell):
-        '''
-        :param: cell - Cell subclass 
-
-        Returns a list of all cells that are immediate neighbors
-        of the target cell.
-        '''
-        return [self[key] for key in cell.neighbors]
+        for cell in self:
+            cell.neighbors.extend([self[loc] for loc in cell.neighborLocations])
 
     def step(self):
         '''
@@ -195,7 +189,7 @@ class World(object):
         self.generation += 1
 
         for c in self:
-            c.think(sum(self.neighborsFor(c)))
+            c.think()
 
         for c in self:
             c.act()
@@ -324,18 +318,17 @@ class OptimizedWorld(World):
         borders = set()
         
         for c in self.alive:
-            neighbors = self.neighborsFor(c)
-            borders.update(set(neighbors))
+            borders.update(c.neighbors)
 
         self.alive.update(borders)
 
-        for c in self.alive:
-            c.think(sum(self.neighborsFor(c)))
+        for cell in self.alive:
+            cell.think()
             
         deaders = set()
-        for c in self.alive:
-            c.act()
-            if not c.alive:
-                deaders.add(c)
+        for cell in self.alive:
+            cell.act()
+            if not cell.alive:
+                deaders.add(cell)
                 
         return self.alive.difference_update(deaders)
