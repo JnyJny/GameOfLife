@@ -236,7 +236,7 @@ class World(object):
         visited = set()
         for Y,line in enumerate(pattern.split(eol)):
             for X,c in enumerate(line):
-                self[x+X,y+Y].age = int(rule(c))
+                self[x+X,y+Y].alive = int(rule(c))
                 visited.add(self[x+X,y+Y])
         return visited
     
