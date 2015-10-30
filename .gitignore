@@ -63,3 +63,5 @@ target/
 .#*
 *#
 
+# Mac gorp
+.DS_Store
