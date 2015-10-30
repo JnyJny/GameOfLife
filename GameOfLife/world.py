@@ -36,7 +36,7 @@ class World(object):
         w.read(fileobj,rule=rule,eol=eol)
         return w
     
-    def __init__(self,CellClass=None,width=80,height=23):
+    def __init__(self,width=80,height=23,CellClass=None):
         '''
         :param: CellClass - subclass of Cell
         :param: width - integer
@@ -69,10 +69,12 @@ class World(object):
         '''
         A list of all Cell objects managed by the world.
         '''
+        
         try:
             return self._cells
         except AttributeError:
             pass
+        
         self._cells = []
         return self._cells
 
@@ -110,6 +112,7 @@ class World(object):
             return nbytes
         except AttributeError:
             pass
+        
         f = open(fileobj,'w')
         nbytes = f.write(str(self))
         return nbytes
@@ -233,7 +236,7 @@ class World(object):
         visited = set()
         for Y,line in enumerate(pattern.split(eol)):
             for X,c in enumerate(line):
-                self[x+X,y+Y].alive = rule(c)
+                self[x+X,y+Y].age = int(rule(c))
                 visited.add(self[x+X,y+Y])
         return visited
     
