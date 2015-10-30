@@ -81,7 +81,7 @@ class Cell(object):
                            (x-1,y+1), (  x,y+1), (x+1,y+1)]
         return self._neighbors
 
-    def update(self,aliveNeighbors):
+    def think(self,aliveNeighbors):
         '''
         :param: aliveNeighbors - integer
         :return: None
@@ -93,7 +93,7 @@ class Cell(object):
         if self.alive:
             self.age += 1
             
-    def commit(self):
+    def act(self):
         '''
         :return: None
 

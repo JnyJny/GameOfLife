@@ -29,10 +29,14 @@ class TwoSixteen(list):
         return super(TwoSixteen,self).__getitem__(key)
 
 
-class PygameCell(Cell):
+class PygameCell(Cell,pygame.sprite.Sprite):
     _colors = TwoSixteen()
+    
     @property
     def color(self):
+        '''
+        Cell foreground color.
+        '''
         return self._colors[self.age]
 
     def draw(self,surface):
@@ -47,6 +51,9 @@ class PygameWorld(World):
         '''
         '''
         sz = screen.get_size()
+
+        
+        
         super(PygameWorld,self).__init__(cellClass,width=sz[0],height=sz[1])
         self.screen = screen
         self.buffer = screen.copy() # resize?
@@ -57,6 +64,14 @@ class PygameWorld(World):
                          K_MINUS: self.decInterval}
         self.buffer.fill(self.background)
 
+    @property
+    def screen(self):
+        return self._screen
+
+    @screen.setter
+    def screen(self,newValue):
+        self._screen = newValue
+        self.buffer = newValue.copy()
 
     @property
     def background(self):

@@ -195,10 +195,10 @@ class World(object):
         self.generation += 1
 
         for c in self:
-            c.update(sum(self.neighborsFor(c)))
+            c.think(sum(self.neighborsFor(c)))
 
         for c in self:
-            c.commit()
+            c.act()
 
             
     def addPattern(self,pattern,x=0,y=0,rule=None,eol='\n',resize=False):
@@ -330,11 +330,11 @@ class OptimizedWorld(World):
         self.alive.update(borders)
 
         for c in self.alive:
-            c.update(sum(self.neighborsFor(c)))
+            c.think(sum(self.neighborsFor(c)))
             
         deaders = set()
         for c in self.alive:
-            c.commit()
+            c.act()
             if not c.alive:
                 deaders.add(c)
                 
