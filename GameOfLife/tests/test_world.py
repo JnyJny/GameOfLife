@@ -26,7 +26,6 @@ class WorldTestCase(unittest.TestCase):
         for c in obj:
             self.assertIsInstance(c,obj.cellClass)
 
-
     def testWorldCreation(self):
         
         self.assertIsWorld(World())
@@ -41,7 +40,7 @@ class WorldTestCase(unittest.TestCase):
         self.assertIsWorld(World(height=dim),height=dim)
         self.assertIsWorld(World(width=dim,height=dim),width=dim,height=dim)
         
-        self.assertIsWorld(World(TestCell,dim,dim),
+        self.assertIsWorld(World(dim,dim,TestCell),
                            width=dim,height=dim,cellClass=TestCell)
 
 
@@ -84,7 +83,7 @@ class WorldTestCase(unittest.TestCase):
         for cell in world:
             self.assertTrue(cell is world[cell.location])
 
-    def testRestMethod(self):
+    def testResetMethod(self):
         
         world = World(width=10,height=10)
 
@@ -116,9 +115,9 @@ class WorldTestCase(unittest.TestCase):
         world[0,1].alive = True
         world[1,0].alive = True
         world[1,1].alive = True
+        
         # these cells will never transition from alive to dead as
         # long as no other neighbor cells become alive.
-
         self.assertEqual(world[0,0].age,0)
         self.assertEqual(world[0,1].age,0)
         self.assertEqual(world[1,0].age,0)
@@ -126,13 +125,13 @@ class WorldTestCase(unittest.TestCase):
 
         self.assertEqual(len([c for c in world if c.alive]),4)
 
-        for trip in range(10):
+        for trip in range(1,10):
             world.step()
             alive_cells = [c for c in world if c.alive]
             self.assertEqual(len(alive_cells),4)
-            self.assertEqual(world.generation,trip+1)
+            self.assertEqual(world.generation,trip)
             for cell in alive_cells:
-                self.assertEqual(cell.age,trip+1)
+                self.assertEqual(cell.age,trip)
                 
         world.reset()
 

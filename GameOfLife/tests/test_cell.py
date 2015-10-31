@@ -78,9 +78,8 @@ class CellTestCase(unittest.TestCase):
             cell.neighbors.clear()
             cell.neighbors.extend([1]*n)
             cell.think()
-            self.assertEqual(cell.aliveNeighbors,n)
             self.assertTrue(cell.alive)
-            self.assertEqual(cell.age,n+1)
+
 
     def testCellActMethod(self):
 
@@ -100,7 +99,7 @@ class CellTestCase(unittest.TestCase):
             cell.think()
             cell.act()
             if n in [2,3]:
-                self.assertTrue(cell.alive)
+                self.assertTrue(cell.alive,'{n} {cell.neighbors}'.format(cell=cell,n=n))
             else:
                 self.assertFalse(cell.alive)
                 self.assertEqual(cell.age,0)
