@@ -20,7 +20,24 @@ class Cell(object):
         self.location = (x,y)
         self.markers = markers
         self.aliveNeighbors = 0
+        self.alive = alive
         self.age = 0
+
+    @property
+    def alive(self):
+        try:
+            return self._alive
+        except AttributeError:
+            pass
+        self._alive = False
+        self.age = 0
+        return self._alive
+    
+    @alive.setter
+    def alive(self,newValue):
+        self._alive = bool(newValue)
+        if not self._alive:
+            self.age = 0
 
     def __str__(self):
         '''
@@ -49,19 +66,6 @@ class Cell(object):
             pass
         self._hash = int(hashlib.sha1(bytes(repr(self),'utf-8')).hexdigest(),16)
         return self._hash
-
-    @property
-    def alive(self):
-        return bool(self.age>0)
-
-    @alive.setter
-    def alive(self,newValue):
-
-        b = bool(newValue)
-        if not b:
-            self.age = 0
-        if self.age == 0 and b:
-            self.age = 1
 
     @property
     def neighbors(self):
@@ -94,8 +98,6 @@ class Cell(object):
         the cells age if it is currently alive.
         '''
         self.aliveNeighbors = sum(self.neighbors)
-        if self.alive:
-            self.age += 1
             
     def act(self):
         '''
@@ -106,12 +108,16 @@ class Cell(object):
 
         '''
         if not self.alive and self.aliveNeighbors in self.born_rule:
+            self.alive = True
             self.age = 1
             return
         
         if self.alive and self.aliveNeighbors in self.die_rule:
+            self.alive = False
             self.age = 0
             return
+        
+        self.age += 1
 
     def __add__(self,other):
         '''
