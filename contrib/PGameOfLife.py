@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 
 
 '''Conway's Game of Life displayed with PyGame
 '''
@@ -50,7 +50,8 @@ class ColorCell(Cell):
 
    
 class PixelCell(ColorCell):
-
+    '''
+    '''
     @property
     def size(self):
         return (1,1)
@@ -61,6 +62,8 @@ class PixelCell(ColorCell):
 
 
 class SpriteCell(ColorCell):
+    '''
+    '''
     
     def __init__(self,*args,**kwds):
         '''
@@ -87,6 +90,18 @@ class SpriteCell(ColorCell):
         self._size = newValue
         del(self._surface)
 
+
+    @property
+    def rect(self):
+        '''
+        '''
+        try:
+            return self._rect
+        except AttributeError:
+            pass
+        self._rect = pygame.rect.Rect(self.location,self.size)
+        return self._rect
+
     @property
     def surface(self):
         '''
@@ -100,7 +115,8 @@ class SpriteCell(ColorCell):
 
 
 class CircleCell(SpriteCell):
-
+    '''
+    '''
     def draw(self,fillColor):
         '''
         '''
@@ -111,7 +127,15 @@ class CircleCell(SpriteCell):
         if self.age:
             pygame.gfxdraw.filled_circle(self.surface,x,y,r,self.color)
         return self.surface
-        
+
+class SquareCell(SpriteCell):
+    '''
+    '''
+    def draw(self,fillColor):
+        self.surface.fill(self.color)
+        return self.surface
+
+    
 class PygameWorld(World):
     '''
     '''
@@ -119,17 +143,19 @@ class PygameWorld(World):
         '''
         '''
         super(PygameWorld,self).__init__(width,height,cellClass)
-
+        pygame.display.set_caption('PGameOfLife - {}'.format(cellClass.__name__))
         self.paused = False
         self.events = {QUIT:self.quit}
         self.controls = {K_ESCAPE:self.quit,
                          K_q:self.quit,
                          K_SPACE: self.togglePaused,
-                         K_PLUS: self.incInterval,
-                         K_MINUS: self.decInterval}
+                         K_PAGEUP: self.incInterval,
+                         K_PAGEDOWN: self.decInterval}
 
     @property
     def screen(self):
+        '''
+        '''
         try:
             return self._screen
         except AttributeError:
@@ -138,10 +164,13 @@ class PygameWorld(World):
         offx,offy = self[0].size
         screensz = (self.width*offx,self.height*offy)
         self._screen = pygame.display.set_mode(screensz,0,_SurfaceDepth)
+        self._screen.fill(self.background)
         return self._screen
 
     @property
     def buffer(self):
+        '''
+        '''
         try:
             return self._buffer
         except AttributeError:
@@ -176,19 +205,17 @@ class PygameWorld(World):
     def interval(self,newValue):
         self._interval = float(newValue)
         if self._interval < 0:
-            self._interval = 0
+            self._interval = 0.0
 
     def incInterval(self):
         '''
         '''
         self.interval += 0.01
-        print(self.interval,'+')
 
     def decInterval(self):
         '''
         '''
         self.interval -= 0.01
-        print(self.interval,'-')
 
     def togglePaused(self):
         self.paused = not self.paused
@@ -228,6 +255,14 @@ class PygameWorld(World):
                                    nAlive=len(self.alive),
                                    nTotal=len(self.cells))
 
+    def reset(self):
+        '''
+        '''
+        super(PygameWorld,self).reset()
+        for cell in self:
+            cell.rect.x *= cell.size[0]
+            cell.rect.y *= cell.size[1]
+
     def quit(self):
         '''
         '''
@@ -237,11 +272,13 @@ class PygameWorld(World):
     def handle_input(self):
         '''
         '''
+        
         # first key presses
         pressed = pygame.key.get_pressed()
         for key,action in self.controls.items():
             if pressed[key]:
                 action()
+                
         # next events
         for event in pygame.event.get():
             name = pygame.event.event_name(event.type)
@@ -255,14 +292,9 @@ class PygameWorld(World):
         '''
         
         self.buffer.fill(self.background)
-
-        x_off,y_off = self[0].size
         
         for cell in self.alive:
-            sprite = cell.draw(self.background)
-            x,y = cell.location
-            dest = pygame.rect.Rect((x*x_off,y*y_off),(x_off,y_off))
-            self.buffer.blit(sprite,dest)
+            self.buffer.blit(cell.draw(self.background),cell.rect)
               
         rect = self.screen.blit(self.buffer,(0,0))
         
@@ -276,9 +308,18 @@ class PygameWorld(World):
 
         while self.generation != stop:
             self.handle_input()
+            t0 = time.time()
             if not self.paused:
                 self.step()
             rect = self.draw()
+
+            t1 = time.time()
+            
+            if self.paused:
+                self.gps = 0
+            else:
+                self.gps = 1 / (t1-t0)
+            
             pygame.display.update(rect)
             time.sleep(self.interval)
 
@@ -303,7 +344,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         usage(sys.argv,"no patterns specified.")
 
-    w = PygameWorld(128,128,cellClass=CircleCell)
+    w = PygameWorld(128,128,cellClass=SquareCell)
 
     for thing in sys.argv[1:]:
         name,_,where = thing.partition(',')
