@@ -2,7 +2,7 @@ TARGET= GameOfLife
 
 MAJOR=0
 MINOR=1
-POINT=1
+POINT=2
 VERSION= ${MAJOR}.${MINOR}.${POINT}
 QVERSION= "'${VERSION}'"
 VERSION_FILE= VERSION
@@ -73,14 +73,14 @@ bump_point:
 	  ${MAKEFILE} > ${MAKEFILE}.tmp
 		@${MV} ${MAKEFILE}.tmp ${MAKEFILE}
 
-VERSION:
+update: 
 	@echo ${VERSION} > ${VERSION_FILE}
-
-update: VERSION
 	@${SED} -e ${UPDTINIT} ${PKG_INIT} > ${PKG_INIT}.tmp
 	@${MV} ${PKG_INIT}.tmp ${PKG_INIT}
 	@${SED} -e ${UPDTRDME} ${README} > ${README}.tmp
 	@${MV} ${README}.tmp ${README}
+
+commit:
 	@${GIT} add .
 	@${GIT} commit -m ${VERSION}
 
