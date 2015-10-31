@@ -143,7 +143,10 @@ class PygameWorld(World):
         '''
         '''
         super(PygameWorld,self).__init__(width,height,cellClass)
+        
         pygame.display.set_caption('PGameOfLife - {}'.format(cellClass.__name__))
+
+        self.hudHeight = 100
         self.paused = False
         self.events = {QUIT:self.quit}
         self.controls = {K_ESCAPE:self.quit,
@@ -151,6 +154,8 @@ class PygameWorld(World):
                          K_SPACE: self.togglePaused,
                          K_PAGEUP: self.incInterval,
                          K_PAGEDOWN: self.decInterval}
+
+        
 
     @property
     def screen(self):
@@ -162,7 +167,7 @@ class PygameWorld(World):
             pass
 
         offx,offy = self[0].size
-        screensz = (self.width*offx,self.height*offy)
+        screensz = (self.width*offx,self.height*offy + self.hudHeight)
         self._screen = pygame.display.set_mode(screensz,0,_SurfaceDepth)
         self._screen.fill(self.background)
         return self._screen
@@ -189,6 +194,27 @@ class PygameWorld(World):
             pass
         self._background = TwoSixteen()[0]
         return self._background
+
+    @property
+    def font(self):
+        try:
+            return self._font
+        except AttributeError:
+            pass
+        self._font = pygame.font.Font(pygame.font.get_default_font(),24)
+        return self._font
+
+    @property
+    def hudRect(self):
+        try:
+            return self._hudRect
+        except AttributeError:
+            pass
+        self._hudRect = self.screen.get_rect()
+        self._hudRect.y = self.hudRect.height - self.hudHeight
+        self._hudRect.height = self.hudHeight
+        return self._hudRect
+
 
     @property
     def interval(self):
@@ -246,11 +272,11 @@ class PygameWorld(World):
         except AttributeError:
             pass
 
-        s = ['Generations: {self.generation:<}',
-             'Cells Alive: {nAlive}',
-             'Total Cells: {nTotal}']
+        s = ['Generations: {self.generation:<10}',
+             '{self.gps:>4} G/s',
+             'Census: {nAlive}/{nTotal}']
 
-        self._status = '\n'.join(s)
+        self._status = ' '.join(s)
         return self._status.format(self=self,
                                    nAlive=len(self.alive),
                                    nTotal=len(self.cells))
@@ -266,7 +292,6 @@ class PygameWorld(World):
     def quit(self):
         '''
         '''
-        print(self.status)
         exit()
 
     def handle_input(self):
@@ -287,18 +312,46 @@ class PygameWorld(World):
             except KeyError:
                 pass
 
+    def drawHud(self,surface,color,frame):
+        '''
+        '''
+        labels = [ 'Generations:','Generations/Sec:',
+                   '# Cells Alive:','# Total Cells:']
+
+        values = ['{self.generation}'.format(self=self),
+                  '{self.gps}'.format(self=self),
+                  '{nAlive}'.format(nAlive=len(self.alive)),
+                  '{nCells}'.format(nCells=len(self.cells))]
+        
+        for n,texts in enumerate(zip(labels,values)):
+            label,value = texts
+            l = self.font.render(label,True,color)
+            r = l.get_rect()
+            r.y = frame.y + (n * r.height)
+            surface.blit(l,r)
+            
+            v = self.font.render(value,True,color)
+            r = v.get_rect()
+            r.y = frame.y + (n*r.height)
+            r.x = 250
+            surface.blit(v,r)
+            
+            
+
     def draw(self):
         '''
         '''
+
+        rects = []
         
         self.buffer.fill(self.background)
         
         for cell in self.alive:
             self.buffer.blit(cell.draw(self.background),cell.rect)
-              
-        rect = self.screen.blit(self.buffer,(0,0))
         
-        return rect
+        self.drawHud(self.buffer,(255,255,255),self.hudRect)
+                      
+        return self.screen.blit(self.buffer,(0,0))
 
     def run(self,stop=-1,interval=0.01):
         '''
