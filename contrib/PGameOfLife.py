@@ -6,6 +6,7 @@
 import os
 import sys
 import time
+import math
 
 import pygame
 from pygame.gfxdraw import pixel
@@ -15,50 +16,32 @@ from GameOfLife import World, Cell, Patterns
 
 _SurfaceDepth = 32
 
-class TwoSixteen(list):
-    def __init__(self,*args,**kwds):
-        super(TwoSixteen,self).__init__(args,**kwds)
-        v = [00,33,66,99,0xcc,0xff]
-        for r in v:
-            for g in v:
-                for b in v:
-                    self.append((r,g,b))
-        del(self[-1])
-        self.insert(1,(255,255,255))
-
-    def __getitem__(self,key):
-        key %= len(self)
-        return super(TwoSixteen,self).__getitem__(key)
 
 class ColorCell(Cell):
     '''
     '''
-    _colors = TwoSixteen()
+    
     @property
     def color(self):
         '''
         Cell foreground color.
         '''
 
-        if self.age == 0:
-            return self._colors[self.age]
-
-        if self.age < 5:
-            return self._colors[1]
+        if not self.alive:
+            return (0,0,0)
         
-        return self._colors[self.age]
+        if self.age == 1:
+            return (255,255,255)
 
-   
-class PixelCell(ColorCell):
-    '''
-    '''
-    @property
-    def size(self):
-        return (1,1)
-    
-    def draw(self,surface):
-        x,y = self.location
-        pygame.gfxdraw.pixel(surface,x,y,self.color)
+        frequency = 0.01
+        width = 127
+        center = 128
+
+        c = []
+        for phase in range(0,6,2):
+            c.append((math.sin((frequency * self.age) + phase) * width) + center)
+
+        return tuple(c)
 
 
 class SpriteCell(ColorCell):
@@ -89,7 +72,7 @@ class SpriteCell(ColorCell):
     def size(self,newValue):
         self._size = newValue
         del(self._surface)
-
+        del(self._rect)
 
     @property
     def rect(self):
@@ -117,24 +100,42 @@ class SpriteCell(ColorCell):
 class CircleCell(SpriteCell):
     '''
     '''
-    def draw(self,fillColor):
+    def draw(self,fillColor,surface=None):
         '''
+
         '''
+
+        if surface is None:
+            surface = self.surface
+        
+        
         # draw to self.surface and then blit to surface
-        x,y = map(lambda v: v//2,self.size)
-        r = max(self.size) // 2
-        self.surface.fill(fillColor)
-        if self.age:
-            pygame.gfxdraw.filled_circle(self.surface,x,y,r,self.color)
-        return self.surface
+
+        if fillColor is not None:
+            surface.fill(fillColor)
+
+        x,y = self.rect.width // 2, self.rect.height//2
+        r = (min(self.rect.size) // 2) - 2
+
+        pygame.gfxdraw.filled_circle(surface,x,y,r,self.color)
+        
+        return surface
 
 class SquareCell(SpriteCell):
     '''
     '''
-    def draw(self,fillColor):
-        self.surface.fill(self.color)
-        return self.surface
+    def draw(self,fillColor,surface=None):
 
+        if surface is None:
+            surface = self.surface
+
+        if self.alive:
+            surface.fill(self.color)
+            pygame.draw.rect(surface,fillColor,self.surface.get_rect(),1)
+        else:
+            surface.fill(fillColor)
+                         
+        return surface
     
 class PygameWorld(World):
     '''
@@ -192,7 +193,7 @@ class PygameWorld(World):
             return self._background
         except AttributeError:
             pass
-        self._background = TwoSixteen()[0]
+        self._background = self.cellClass(0,0,alive=False).color
         return self._background
 
     @property
@@ -335,19 +336,15 @@ class PygameWorld(World):
             r.y = frame.y + (n*r.height)
             r.x = 250
             surface.blit(v,r)
-            
-            
 
-    def draw(self):
+    def draw(self,allCells=False):
         '''
         '''
-
-        rects = []
-        
         self.buffer.fill(self.background)
         
         for cell in self.alive:
             self.buffer.blit(cell.draw(self.background),cell.rect)
+                             
         
         self.drawHud(self.buffer,(255,255,255),self.hudRect)
                       
@@ -361,19 +358,26 @@ class PygameWorld(World):
 
         while self.generation != stop:
             self.handle_input()
+            
             t0 = time.time()
+            
             if not self.paused:
                 self.step()
-            rect = self.draw()
+                
+            rect = self.draw(allCells=self.generation==0)
 
             t1 = time.time()
-            
+
             if self.paused:
                 self.gps = 0
             else:
                 self.gps = 1 / (t1-t0)
-            
+                
             pygame.display.update(rect)
+            
+            if self.writeGenerations:
+                pygame.image.save(self.screen,
+                                  'images/generation-{:05d}.bmp'.format(self.generation))
             time.sleep(self.interval)
 
 
@@ -398,6 +402,8 @@ if __name__ == '__main__':
         usage(sys.argv,"no patterns specified.")
 
     w = PygameWorld(128,128,cellClass=SquareCell)
+
+    w.writeGenerations = False
 
     for thing in sys.argv[1:]:
         name,_,where = thing.partition(',')
