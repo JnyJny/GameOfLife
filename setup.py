@@ -24,10 +24,10 @@ Or clone the git repository::
    $ cd GameOfLife
    $ sudo python3 setup.py install
 
-Also included in the package is CGameOfLife, a python script that
-displays the simulation in a terminal window using curses.
+Also included in the package are:
 
-Old skool is best skool.
+CGameOfLife: displays the simulation in a terminal window using curses.
+PGameOfLife: displays the simulation in a PyGame window with pretty pictures.
 '''
 
 try:    
@@ -61,7 +61,7 @@ setup(name='GameOfLife',
       keywords = 'conway game life cellular automata simulation',
       packages = find_packages(exclude=['contrib']),
       test_suite = 'GameOfLife.tests',
-      scripts = ['contrib/CGameOfLife.py'],
+      scripts = ['contrib/CGameOfLife.py','contrib/PGameOfLife.py'],
       install_requires = [],
       extras_require = {},
       package_data = {},

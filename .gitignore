@@ -65,3 +65,4 @@ target/
 
 # Mac gorp
 .DS_Store
+contrib/images/*
