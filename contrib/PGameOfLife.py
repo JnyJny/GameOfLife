@@ -350,6 +350,18 @@ class PygameWorld(World):
                       
         return self.screen.blit(self.buffer,(0,0))
 
+    def saveFrame(self,destdir='images',prefix='generation',ext='bmp'):
+        '''
+
+        '''
+
+        fname_template = '%s/%s-{:05}.%s' % (destdir,prefix,ext)
+        
+        pygame.image.save(self.screen,
+                          fname_template.format(self.generation))
+                          
+                          
+
     def run(self,stop=-1,interval=0.01):
         '''
         '''
@@ -376,8 +388,8 @@ class PygameWorld(World):
             pygame.display.update(rect)
             
             if self.writeGenerations:
-                pygame.image.save(self.screen,
-                                  'images/generation-{:05d}.bmp'.format(self.generation))
+                self.saveFrame(ext='png')
+
             time.sleep(self.interval)
 
 
