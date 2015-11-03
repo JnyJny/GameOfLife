@@ -13,10 +13,10 @@ __version__ = "0.1.2"
 
 from .cell import Cell as Cell
 from .world import OptimizedWorld as World
+from .world import NumpyWorld
+from .world import OptimizedNumpyWorld
 from .patterns import Patterns as Patterns
 
-__all__ = [ 'Cell','World','Patterns','tests']
-
-
-
+__all__ = [ 'Cell','World','Patterns','tests',
+            'NumpyWorld','OptimizedNumpyWorld']
 

@@ -2,6 +2,10 @@
 from . import Cell
 from .patterns import Patterns as BuiltinPatterns
 
+import numpy as np
+
+
+
 class World(object):
     '''
     The game World is a two dimensional grid populated with Cells.
@@ -335,3 +339,193 @@ class OptimizedWorld(World):
                 deaders.add(cell)
                 
         return self.alive.difference_update(deaders)
+
+
+class NumpyWorld(World):
+    '''
+    '''
+    def __init__(self,width=80,height=23):
+        '''
+        '''
+        self.generation = 0
+        self.width = int(width)
+        self.height = int(height)
+        self.markers = [' ','.']
+
+    def __str__(self):
+        '''
+        '''
+        s = []
+        for y in range(self.height):
+            r = ''
+            for x in range(self.width):
+                r += self.markers[self.cells[y,x] > 0]
+            s.append(r)
+        return '\n'.join(s)
+
+    def __repr__(self):
+        '''
+        '''
+        s = [ '{self.__class__.__name__}',
+              '(width={self.width},',
+              'height={self.height})']
+        
+        return ''.join(s).format(self=self)
+
+    @property
+    def cells(self):
+        try:
+            return self._cells
+        except AttributeError:
+            pass
+        self._cells = np.zeros((self.height,self.width),dtype=np.int)
+        return self._cells
+
+    @property
+    def buffer(self):
+        try:
+            return self._buffer
+        except AttributeError:
+            pass
+        self._buffer = np.zeros((self.height,self.width),dtype=np.int)
+        return self._buffer
+
+    @property
+    def alive(self):
+        ijs = self.cells.nonzero()
+        return [(i,j) for i,j in zip(ijs[0],ijs[1])]    
+
+    def _clamp(self,key):
+        x,y = key
+        h,w = self.cells.shape
+        return (x % (w-1),y % (h-1))
+
+    def __getitem__(self,key):
+        x,y = self._clamp(key)
+        return self.cells[y,x]
+
+    def __setitem__(self,key,value):
+        x,y = self._clamp(key)
+        self.cells[y,x] = value
+
+    def __iter__(self):
+        self._x = 0
+        self._y = 0
+        return self
+
+    def next(self):
+        v = self[self._x,self._y]
+        x,y = self._x,self._y
+        self._x += 1
+        if self._x not in range(self.width):
+            self._x = 0
+            self._y += 1
+        if self._y not in range(self.height):
+            raise StopIteration()
+        return x,y,v
+
+    def read(self,fileobj):
+        pass
+
+    def write(self,fileobj):
+        pass
+
+    def addPattern(self,pattern,x=0,y=0,rule=None,eol='\n',resize=False):
+
+        try:
+            pattern = BuiltinPatterns[pattern]
+        except KeyError:
+            pass
+
+        if rule is None:
+            rule = lambda c: not c.isspace()
+
+        if resize:
+            self.height = len(pattern.split(eol))
+            self.width  = max([len(l) for l in pattern.split(eol)])
+            self.reset()
+        
+        visited = set()
+        for Y,line in enumerate(pattern.split(eol)):
+            for X,c in enumerate(line):
+                self[x+X,y+Y] = int(rule(c))
+                visited.add((x+X,y+Y))
+        return visited
+    
+    def reset(self):
+        self.generation = 0
+        self.cells.fill(0)
+
+    def neighbors(self,x,y):
+        yield (x-1,y-1)
+        yield (  x,y-1)
+        yield (x+1,y-1)
+        yield (x-1,  y)
+        yield (  x,  y)
+        yield (x+1,  y)
+        yield (x-1,y+1)
+        yield (  x,y+1)
+        yield (x+1,y+1)
+        
+
+    def newStateFor(self,x,y,born=None,live=None):
+        '''
+        '''
+        if born is None:
+            born = [3]
+
+        if live is None:
+            live = [2,3]
+
+        neighbors = np.array([self[key] for key in self.neighbors(x,y)]) > 0
+        neighbors.shape = (3,3)
+        neighbors[1,1] = 0
+
+        v = neighbors.sum()
+
+        if (self[x,y] == 0) and (v in born):
+            return 1
+                
+        if (self[x,y] > 0) and (v in live): 
+            return self[x,y]+1
+
+        return 0
+
+    @property
+    def candidates(self):
+        for y in range(self.height):
+            for x in range(self.width):
+                yield (x,y)
+
+    def step(self):
+        '''
+        '''
+        self.buffer.fill(0)
+
+        for x,y in self.candidates:
+            self.buffer[y,x] = self.newStateFor(x,y)
+
+        alive = self.buffer.nonzero()
+        self.cells.fill(0)
+        self.cells[alive] = self.buffer[alive]
+        self.generation += 1
+        
+
+    def _go(self,steps=-1):
+        try:
+            while self.generation != steps:
+                print(self)
+                self.step()
+        except KeyboardInterrupt:
+            pass
+
+class OptimizedNumpyWorld(NumpyWorld):
+
+    @property
+    def candidates(self):
+        n = set(self.alive)
+        for x,y in self.alive:
+            [n.add(self._clamp(key)) for key in self.neighbors(x,y)]
+        return n
+
+        
