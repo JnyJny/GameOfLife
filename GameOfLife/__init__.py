@@ -15,7 +15,8 @@ from .cell import Cell as Cell
 from .world import OptimizedWorld as World
 from .world import NumpyWorld
 from .world import OptimizedNumpyWorld
-from .patterns import Patterns as Patterns
+from .patterns import Patterns
+
 
 __all__ = [ 'Cell','World','Patterns','tests',
             'NumpyWorld','OptimizedNumpyWorld']
