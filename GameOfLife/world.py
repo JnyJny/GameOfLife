@@ -4,8 +4,6 @@ from .patterns import Patterns as BuiltinPatterns
 
 import numpy as np
 
-
-
 class World(object):
     '''
     The game World is a two dimensional grid populated with Cells.
@@ -133,7 +131,7 @@ class World(object):
             
         self.addPattern(pattern,resize=True)
 
-    def _clamp(self,key):
+    def _warp(self,key):
         '''
         :param: key - tuple of x,y integer values
 
@@ -158,7 +156,7 @@ class World(object):
 
         '''
         try:
-            x,y = self._clamp(key)
+            x,y = self._warp(key)
             return self.cells[(y * self.width)+x]
         except TypeError:
             pass
@@ -374,6 +372,8 @@ class NumpyWorld(World):
 
     @property
     def cells(self):
+        '''
+        '''
         try:
             return self._cells
         except AttributeError:
@@ -382,38 +382,54 @@ class NumpyWorld(World):
         return self._cells
 
     @property
-    def buffer(self):
+    def state(self):
+        '''
+        Intermediate buffer to hold cell state information.
+        '''
         try:
-            return self._buffer
+            return self._state
         except AttributeError:
             pass
-        self._buffer = np.zeros((self.height,self.width),dtype=np.int)
-        return self._buffer
+        self._state = np.zeros((self.height,self.width),dtype=np.int)
+        return self._state
 
     @property
     def alive(self):
-        ijs = self.cells.nonzero()
-        return [(i,j) for i,j in zip(ijs[0],ijs[1])]    
+        '''
+        Returns a list of (x,y) coordinates of cells that are alive.
+        '''
+        yxs = self.cells.nonzero()
+        return [(x,y) for x,y in zip(yxs[1],yxs[0])]
 
-    def _clamp(self,key):
+    def _warp(self,key):
+        '''
+        '''
         x,y = key
         h,w = self.cells.shape
         return (x % (w-1),y % (h-1))
 
     def __getitem__(self,key):
-        x,y = self._clamp(key)
+        '''
+        '''
+        x,y = self._warp(key)
         return self.cells[y,x]
 
     def __setitem__(self,key,value):
-        x,y = self._clamp(key)
+        '''
+        '''
+        x,y = self._warp(key)
         self.cells[y,x] = value
 
     def __iter__(self):
+        '''
+        '''
         self._x = 0
         self._y = 0
         return self
 
     def next(self):
+        '''
+        '''
         v = self[self._x,self._y]
         x,y = self._x,self._y
         self._x += 1
@@ -422,16 +438,22 @@ class NumpyWorld(World):
             self._y += 1
         if self._y not in range(self.height):
             raise StopIteration()
+        
         return x,y,v
 
     def read(self,fileobj):
+        '''
+        '''
         pass
 
     def write(self,fileobj):
+        '''
+        '''
         pass
 
     def addPattern(self,pattern,x=0,y=0,rule=None,eol='\n',resize=False):
-
+        '''
+        '''
         try:
             pattern = BuiltinPatterns[pattern]
         except KeyError:
@@ -453,10 +475,14 @@ class NumpyWorld(World):
         return visited
     
     def reset(self):
+        '''
+        '''
         self.generation = 0
         self.cells.fill(0)
 
     def neighbors(self,x,y):
+        '''
+        '''
         yield (x-1,y-1)
         yield (  x,y-1)
         yield (x+1,y-1)
@@ -468,7 +494,7 @@ class NumpyWorld(World):
         yield (x+1,y+1)
         
 
-    def newStateFor(self,x,y,born=None,live=None):
+    def calculateStateFor(self,x,y,born=None,live=None):
         '''
         '''
         if born is None:
@@ -477,22 +503,49 @@ class NumpyWorld(World):
         if live is None:
             live = [2,3]
 
+        # build a 3x3 array of neighbor values for cell at x,y
+
         neighbors = np.array([self[key] for key in self.neighbors(x,y)]) > 0
         neighbors.shape = (3,3)
-        neighbors[1,1] = 0
+        neighbors[1,1] = 0      # target cell doesn't contribute to state
 
+        # sum the state of the neighbors
         v = neighbors.sum()
 
+        state = 0               # start off assuming dead
+
         if (self[x,y] == 0) and (v in born):
-            return 1
+            state = 1
                 
         if (self[x,y] > 0) and (v in live): 
-            return self[x,y]+1
+            state = self[x,y]+1
 
-        return 0
+        self.state[y,x] = state
+
+    def updateState(self):
+        '''
+        '''
+        
+        self.state.fill(0)
+        for x,y in self.candidates:
+            self.calculateStateFor(x,y)
+
+    def updateCells(self):
+        '''
+        '''
+
+        alive = self.state.nonzero()
+
+        self.cells.fill(0)
+
+        self.cells[alive] = self.state[alive]
 
     @property
     def candidates(self):
+        '''
+        Generator method that returns the x,y coordinates of all "cells"
+        in the world.
+        '''
         for y in range(self.height):
             for x in range(self.width):
                 yield (x,y)
@@ -500,16 +553,9 @@ class NumpyWorld(World):
     def step(self):
         '''
         '''
-        self.buffer.fill(0)
-
-        for x,y in self.candidates:
-            self.buffer[y,x] = self.newStateFor(x,y)
-
-        alive = self.buffer.nonzero()
-        self.cells.fill(0)
-        self.cells[alive] = self.buffer[alive]
-        self.generation += 1
-        
+        self.updateState()
+        self.updateCells()
+        self.generation +=1 
 
     def _go(self,steps=-1):
         try:
@@ -523,9 +569,10 @@ class OptimizedNumpyWorld(NumpyWorld):
 
     @property
     def candidates(self):
-        n = set(self.alive)
+        n = set()
         for x,y in self.alive:
-            [n.add(self._clamp(key)) for key in self.neighbors(x,y)]
+            for key in self.neighbors(x,y):
+                n.add(self._warp(key))
         return n
 
         
