@@ -9,7 +9,7 @@ world populated with cells.
 __author__ = '\n'.join(["Erik O'Shaughnessy",
                         'erik.oshaughnessy@gmail.com',
                         'https://github.com/JnyJny/GameOfLife'])
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from .cell import Cell as Cell
 from .world import OptimizedWorld as World
