@@ -68,13 +68,13 @@ class WorldTestCase(unittest.TestCase):
         for y in range(10):
             for x in range(10):
                 xy = (x,y)
-                self.assertSequenceEqual(xy,w._clamp(xy))
+                self.assertSequenceEqual(xy,w._warp(xy))
 
         for y in range(10,20):
             for x in range(10,20):
                 xy = (x,y)
                 XY = (x-10,y-10)
-                self.assertSequenceEqual(XY,w._clamp(xy))
+                self.assertSequenceEqual(XY,w._warp(xy))
 
         # test wrapping here?
 
