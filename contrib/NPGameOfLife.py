@@ -12,8 +12,7 @@ import pygame
 from pygame.gfxdraw import pixel
 from pygame.locals import *
 
-from GameOfLife import OptimizedNumpyWorld as NumpyWorld
-from GameOfLife import Patterns
+from GameOfLife import NumpyWorld, Patterns
 
 _SurfaceDepth = 32
 
