@@ -6,7 +6,7 @@
 import curses
 import time
 
-from GameOfLife import OptimizedNumpyWorld as NumpyWorld
+from GameOfLife import NumpyWorld
 from GameOfLife import Patterns
 
 from curses import ( COLOR_BLACK, COLOR_BLUE, COLOR_CYAN,
