@@ -40,9 +40,9 @@ class World(object):
     
     def __init__(self,width=80,height=23,CellClass=None):
         '''
-        :param: CellClass - subclass of Cell
         :param: width - integer
         :param: height - integer
+        :param: CellClass - subclass of Cell
 
         Creates a world populated with cells created with
         the CellClass.  The world is a rectangular grid
