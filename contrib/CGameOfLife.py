@@ -27,7 +27,7 @@ class CursesWorld(World):
         
         '''
         h,w = window.getmaxyx()
-        super(CursesWorld,self).__init__(cellClass,w,h-1)
+        super(CursesWorld,self).__init__(w,h-1,cellClass)
         self.w = window
         self.interval = 0
         for n,fg in enumerate(self.colors):
