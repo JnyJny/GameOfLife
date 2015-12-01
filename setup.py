@@ -24,10 +24,12 @@ Or clone the git repository::
    $ cd GameOfLife
    $ sudo python3 setup.py install
 
-Also included in the package are:
+Also included in the package are several demos:
 
-CGameOfLife: displays the simulation in a terminal window using curses.
-PGameOfLife: displays the simulation in a PyGame window with pretty pictures.
+- [N]CGameOfLife: displays the simulation in a terminal window using curses.
+- [N]PGameOfLife: displays the simulation in a PyGame window with pretty pictures.
+
+The 'N' variants use a Numpy based World are may be more performant.
 '''
 
 try:    
