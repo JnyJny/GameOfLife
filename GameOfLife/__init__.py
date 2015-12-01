@@ -17,6 +17,5 @@ from .world import OptimizedNumpyWorld as NumpyWorld
 from .patterns import Patterns
 
 
-__all__ = [ 'Cell','World','Patterns','tests',
-            'NumpyWorld']
-
+__all__ = ['Cell', 'World', 'Patterns', 'tests',
+           'NumpyWorld']
