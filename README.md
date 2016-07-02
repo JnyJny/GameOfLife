@@ -198,6 +198,6 @@ number of cells and neighbors is bounded by [0,alive x 8]. I think, my
 algorithm analysis is admittedly rusty. 
 
 [1]: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
-[2]: https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/CGameOfLife-Demo.gif
+[2]: [![asciicast](https://asciinema.org/a/6cb127r5xr0bbpwgw1s9s8h9a.png)](https://asciinema.org/a/6cb127r5xr0bbpwgw1s9s8h9a)
 [3]: https://github.com/JnyJny/GameOfLife/blob/master/Screenshots/PGameOfLife-Demo.gif
 [4]: http://pygame.org
