@@ -1,12 +1,15 @@
+"""
+"""
 
 from . import Cell
 from .patterns import Patterns as BuiltinPatterns
 
 import numpy as np
+from itertools import product
 
 
-class World(object):
-    '''
+class World:
+    """
     The game World is a two dimensional grid populated with Cells.
 
     >>> w = World()
@@ -19,59 +22,56 @@ class World(object):
     >> w.step()
     >> print(w)
 
-    '''
+    """
 
     @classmethod
-    def fromString(cls, worldString, CellClass=None, rule=None, eol='\n'):
-        '''
+    def from_string(cls, world_string, cell_class=None, rule=None, eol="\n"):
+        """
         XXX missing doc string
-        '''
-        w = cls(CellClass, 0, 0,)
-        w.addPattern(worldString, 0, 0, rule=rule, eol=eol, resize=True)
+        """
+        w = cls(cell_class, 0, 0)
+        w.add_pattern(world_string, 0, 0, rule=rule, eol=eol, resize=True)
         return w
 
     @classmethod
-    def fromFile(cls, fileobj, CellClass=None, rule=None, eol='\n'):
-        '''
+    def from_file(cls, fileobj, cell_class=None, rule=None, eol="\n"):
+        """
         XXX missing doc string
-        '''
-        w = cls(CellClass, 0, 0)
+        """
+        w = cls(cell_class, 0, 0)
         w.read(fileobj, rule=rule, eol=eol)
         return w
 
-    def __init__(self, width=80, height=23, CellClass=None):
-        '''
-        :param: width - integer
-        :param: height - integer
-        :param: CellClass - subclass of Cell
+    def __init__(self, width=80, height=23, cell_class=None):
+        """
+        :param int width:
+        :param int height:
+        :param Cell cell_class:
 
         Creates a world populated with cells created with
-        the CellClass.  The world is a rectangular grid
+        the cell_class.  The world is a rectangular grid
         whose dimensions are specified by width and height.
 
-        Will raise a TypeError if the supplied CellClass is
+        Will raise a TypeError if the supplied cell_class is
         not a subclass of Cell.
 
-        '''
+        """
         self.generation = 0
         self.width = int(width)
         self.height = int(height)
 
-        if CellClass is None:
-            CellClass = Cell
+        self.cell_class = cell_class or Cell
 
-        if not issubclass(CellClass, Cell):
-            msg = 'expecting subclass of Cell, got {klass}'
-            raise TypeError(msg.format(klass=CellClass))
+        if not issubclass(self.cell_class, Cell):
+            raise TypeError("expecting subclass of Cell, got {type(cell_class)}")
 
-        self.cellClass = CellClass
         self.reset()
 
     @property
     def cells(self):
-        '''
+        """
         A list of all Cell objects managed by the world.
-        '''
+        """
 
         try:
             return self._cells
@@ -82,69 +82,71 @@ class World(object):
         return self._cells
 
     def __str__(self):
-        '''
-        '''
+        """
+        """
         s = []
         for y in range(self.height):
-            r = ''
+            r = ""
             for x in range(self.width):
                 r += str(self[x, y])
             s.append(r)
-        return '\n'.join(s)
+        return "\n".join(s)
 
     def __repr__(self):
-        '''
-        '''
+        """
+        """
 
-        s = ['{self.__class__.__name__}',
-             '(CellClass={self.cellClass.__name__},',
-             'width={self.width},',
-             'height={self.height})']
+        s = [
+            "{self.__class__.__name__}",
+            "(cell_class={self.cell_class.__name__},",
+            "width={self.width},",
+            "height={self.height})",
+        ]
 
-        return ''.join(s).format(self=self)
+        return "".join(s).format(self=self)
 
     def write(self, fileobj):
-        '''
+        """
         :param: fileobj - File-like object or string
         :return: number of bytes written
 
         XXX missing doc string
-        '''
+        """
         try:
             nbytes = fileobj.write(str(self))
             return nbytes
         except AttributeError:
             pass
 
-        f = open(fileobj, 'w')
+        f = open(fileobj, "w")
         nbytes = f.write(str(self))
         return nbytes
 
-    def read(self, fileobj, rule=None, eol='\n'):
-        '''
+    def read(self, fileobj, rule=None, eol="\n"):
+        """
         XXX missing doc string
-        '''
+        """
         try:
             pattern = fileobj.read()
         except AttributeError:
-            f = open(fileobj, 'r')
-            pattern = f.read()
+            # XXX could throw file not found
+            pattern = open(fileobj, "r").read()
 
-        self.addPattern(pattern, resize=True)
+        self.add_pattern(pattern, resize=True)
 
     def _warp(self, key):
-        '''
+        """
         :param: key - tuple of x,y integer values
 
         Implements wrapping of x,y coordinates to form an wrapping grid.
-        '''
+        """
         x, y = map(int, key)
         x %= self.width
         y %= self.height
         return x, y
 
     def __getitem__(self, key):
-        '''
+        """
         :key: tuple, integer or slice
         :return: Cell or list of Cells
 
@@ -155,7 +157,7 @@ class World(object):
         :integer: returns the i-th Cell in the list
         :slice: returns Cells or Cell satisfying the slice.
 
-        '''
+        """
         try:
             x, y = self._warp(key)
             return self.cells[(y * self.width) + x]
@@ -165,23 +167,22 @@ class World(object):
         return self.cells[key]
 
     def reset(self):
-        '''
+        """
         Resets the simulation to base state:
         - sets generation to zero
         - deletes all cells and allocates a new set cells
-        '''
+        """
         self.generation = 0
         self.cells.clear()
         for y in range(self.height):
             for x in range(self.width):
-                self.cells.append(self.cellClass(x, y))
+                self.cells.append(self.cell_class(x, y))
 
         for cell in self:
-            cell.neighbors.extend([self[loc]
-                                   for loc in cell.neighborLocations])
+            cell.neighbors.extend([self[loc] for loc in cell.neighbor_locations])
 
     def step(self):
-        '''
+        """
         :return: None
 
         This method advances the simulation one generation.
@@ -191,7 +192,7 @@ class World(object):
 
         Second all cells are asked to determine their next state.
 
-        '''
+        """
         self.generation += 1
 
         for c in self:
@@ -200,8 +201,8 @@ class World(object):
         for c in self:
             c.act()
 
-    def addPattern(self, pattern, x=0, y=0, rule=None, eol='\n', resize=False):
-        '''
+    def add_pattern(self, pattern, x=0, y=0, rule=None, eol="\n", resize=False):
+        """
         :param: pattern - string
         :param: x - optional integer
         :param: y - optional integer
@@ -221,7 +222,7 @@ class World(object):
         The rule parameter can be used to specify the rule for determining
         how to interpret each item in the string in terms of alive or dead.
 
-        '''
+        """
 
         try:
             pattern = BuiltinPatterns[pattern]
@@ -245,7 +246,7 @@ class World(object):
 
 
 class OptimizedWorld(World):
-    '''
+    """
     The game World is a two dimensional grid populated with Cells.
 
     >>> w = World()
@@ -260,7 +261,7 @@ class OptimizedWorld(World):
 
     This world has an optimized step method that only updates live
     cells and their neighbors rather than all cells, live or dead.
-    '''
+    """
 
     @property
     def alive(self):
@@ -272,18 +273,18 @@ class OptimizedWorld(World):
         return self._alive
 
     def reset(self):
-        '''
+        """
         Resets the simulation to base state:
         - sets generation to zero
         - deletes all cells and allocates a new set cells
         - creates an empty list of live cells
-        '''
-        super(OptimizedWorld, self).reset()
+        """
+        super().reset()
         self.alive.clear()
         self.alive.update(set([c for c in self if c.alive]))
 
-    def addPattern(self, pattern, **kwds):
-        '''
+    def add_pattern(self, pattern, **kwds):
+        """
         :param: pattern - string
         :param: x - optional integer
         :param: y - optional integer
@@ -300,14 +301,14 @@ class OptimizedWorld(World):
         The first character in the string corresponds to coordinate (0,0).
 
         Updates the set of live cells.
-        '''
+        """
 
-        visited = super(OptimizedWorld, self).addPattern(pattern, **kwds)
+        visited = super().add_pattern(pattern, **kwds)
 
         self.alive.update(set([c for c in visited if c.alive]))
 
     def step(self):
-        '''
+        """
         :return: set of cells currently alive
 
         This method advances the simulation one generation.
@@ -319,7 +320,7 @@ class OptimizedWorld(World):
         Set operations are used to ensure that alive and neighbor
         cells are only visited once during each phase; neighbor
         count and state update.
-        '''
+        """
         self.generation += 1
 
         borders = set()
@@ -342,41 +343,41 @@ class OptimizedWorld(World):
 
 
 class NumpyWorld(World):
-    '''
-    '''
+    """
+    """
 
     def __init__(self, width=80, height=23):
-        '''
-        '''
+        """
+        """
         self.generation = 0
         self.width = int(width)
         self.height = int(height)
-        self.markers = [' ', '.']
+        self.markers = [" ", "."]
+
+    def __repr__(self):
+
+        s = [
+            "{self.__class__.__name__}",
+            "(width={self.width},",
+            "height={self.height})",
+        ]
+
+        return "".join(s).format(self=self)
 
     def __str__(self):
-        '''
-        '''
+
         s = []
         for y in range(self.height):
-            r = ''
+            r = ""
             for x in range(self.width):
                 r += self.markers[self.cells[y, x] > 0]
             s.append(r)
-        return '\n'.join(s)
-
-    def __repr__(self):
-        '''
-        '''
-        s = ['{self.__class__.__name__}',
-             '(width={self.width},',
-             'height={self.height})']
-
-        return ''.join(s).format(self=self)
+        return "\n".join(s)
 
     @property
     def cells(self):
-        '''
-        '''
+        """A 2-D numpy array of cells.
+        """
         try:
             return self._cells
         except AttributeError:
@@ -386,9 +387,9 @@ class NumpyWorld(World):
 
     @property
     def state(self):
-        '''
+        """
         Intermediate buffer to hold cell state information.
-        '''
+        """
         try:
             return self._state
         except AttributeError:
@@ -398,41 +399,41 @@ class NumpyWorld(World):
 
     @property
     def alive(self):
-        '''
+        """
         Returns a list of (x,y) coordinates of cells that are alive.
-        '''
-        yxs = self.cells.nonzero()
-        return [(x, y) for x, y in zip(yxs[1], yxs[0])]
+        """
+        coords = self.cells.nonzero()
+        return [(x, y) for x, y in zip(coords[1], coords[0])]
 
     def _warp(self, key):
-        '''
-        '''
+        """
+        """
         x, y = key
         h, w = self.cells.shape
         return (x % (w - 1), y % (h - 1))
 
     def __getitem__(self, key):
-        '''
-        '''
+        """
+        """
         x, y = self._warp(key)
         return self.cells[y, x]
 
     def __setitem__(self, key, value):
-        '''
-        '''
+        """
+        """
         x, y = self._warp(key)
         self.cells[y, x] = value
 
     def __iter__(self):
-        '''
-        '''
+        """
+        """
         self._x = 0
         self._y = 0
         return self
 
     def next(self):
-        '''
-        '''
+        """
+        """
         v = self[self._x, self._y]
         x, y = self._x, self._y
         self._x += 1
@@ -445,18 +446,18 @@ class NumpyWorld(World):
         return x, y, v
 
     def read(self, fileobj):
-        '''
-        '''
-        pass
+        """
+        """
+        raise NotImplementedError("read")
 
     def write(self, fileobj):
-        '''
-        '''
-        pass
+        """
+        """
+        raise NotImplementedError("write")
 
-    def addPattern(self, pattern, x=0, y=0, rule=None, eol='\n', resize=False):
-        '''
-        '''
+    def add_pattern(self, pattern, x=0, y=0, rule=None, eol="\n", resize=False):
+        """
+        """
         try:
             pattern = BuiltinPatterns[pattern]
         except KeyError:
@@ -473,48 +474,39 @@ class NumpyWorld(World):
         visited = set()
         for Y, line in enumerate(pattern.split(eol)):
             for X, c in enumerate(line):
-                self[x + X, y + Y] = int(rule(c))
-                visited.add((x + X, y + Y))
+                coord = x + X, y + Y
+                self[coord] = int(rule(c))
+                visited.add(coord)
         return visited
 
     def reset(self):
-        '''
-        '''
+        """
+        """
         self.generation = 0
         self.cells.fill(0)
 
     def neighbors(self, x, y):
-        '''
-        '''
-        yield (x - 1, y - 1)
-        yield (x, y - 1)
-        yield (x + 1, y - 1)
-        yield (x - 1, y)
-        yield (x, y)
-        yield (x + 1, y)
-        yield (x - 1, y + 1)
-        yield (x, y + 1)
-        yield (x + 1, y + 1)
+        """
+        """
+        return list(product([x - 1, x, x + 1], [y - 1, y, y + 1]))
 
-    def calculateStateFor(self, x, y, born=None, live=None):
-        '''
-        '''
-        if born is None:
-            born = [3]
+    def calculate_state_for(self, x, y, born=None, live=None):
+        """
+        """
 
-        if live is None:
-            live = [2, 3]
+        born = born or [3]
+        live = live or [2, 3]
 
         # build a 3x3 array of neighbor values for cell at x,y
 
         neighbors = np.array([self[key] for key in self.neighbors(x, y)]) > 0
         neighbors.shape = (3, 3)
-        neighbors[1, 1] = 0      # target cell doesn't contribute to state
+        neighbors[1, 1] = 0  # target cell doesn't contribute to state
 
         # sum the state of the neighbors
         v = neighbors.sum()
 
-        state = 0               # start off assuming dead
+        state = 0  # start off assuming dead
 
         if (self[x, y] == 0) and (v in born):
             state = 1
@@ -524,17 +516,17 @@ class NumpyWorld(World):
 
         self.state[y, x] = state
 
-    def updateState(self):
-        '''
-        '''
+    def update_state(self):
+        """
+        """
 
         self.state.fill(0)
         for x, y in self.candidates:
-            self.calculateStateFor(x, y)
+            self.calculate_state_for(x, y)
 
-    def updateCells(self):
-        '''
-        '''
+    def update_cells(self):
+        """
+        """
 
         alive = self.state.nonzero()
 
@@ -544,19 +536,24 @@ class NumpyWorld(World):
 
     @property
     def candidates(self):
-        '''
-        Generator method that returns the x,y coordinates of all "cells"
-        in the world.
-        '''
-        for y in range(self.height):
-            for x in range(self.width):
-                yield (x, y)
+        """
+        A list of the x,y coordinates of all "cells" in the world.
+        """
+
+        try:
+            return self._candidates
+        except AttributeError:
+            pass
+        self._candidates = [
+            (x, y) for x in range(self.width) for y in range(self.height)
+        ]
+        return self._candidates
 
     def step(self):
-        '''
-        '''
-        self.updateState()
-        self.updateCells()
+        """
+        """
+        self.update_state()
+        self.update_cells()
         self.generation += 1
 
     def _go(self, steps=-1):
@@ -569,7 +566,6 @@ class NumpyWorld(World):
 
 
 class OptimizedNumpyWorld(NumpyWorld):
-
     @property
     def candidates(self):
         n = set()

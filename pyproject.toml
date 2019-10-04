@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "GameOfLife"
+version = "0.1.4"
+description = "Python implementation of Conway's Game of Life"
+authors = ["jnyjny <erik.oshaughnessy@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/JnyJny/GameOfLife.git"
+classifiers = ['Development Status :: 3 - Alpha',
+	       'Intended Audience :: Developers',
+               'Operating System :: POSIX',
+               'Environment :: Console :: Curses',
+               'Topic :: Software Development :: Libraries :: Python Modules',
+               'Topic :: Scientific/Engineering :: Mathematics',
+               'Topic :: Scientific/Engineering :: Artificial Life',
+               'Topic :: Games/Entertainment :: Simulation',
+               'License :: OSI Approved :: MIT License',
+               'Programming Language :: Python :: 3',
+               'Programming Language :: Python :: 3.6']
+	       
+[tool.poetry.dependencies]
+python = "^3.6"
+click = "^7.0"
+numpy = "^1.17"
+pygame = "^1.9"
+
+[tool.poetry.scripts]
+gameoflife = "GameOfLife.console:cli"
+
+[tool.poetry.dev-dependencies]
+black = {version = "^18.3-alpha.0", allows-prereleases = true}
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

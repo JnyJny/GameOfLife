@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-'''Conway's Game of Life in a Curses Terminal Window
-'''
+"""Conway's Game of Life in a Curses Terminal Window
+"""
 
 import curses
 import time
@@ -9,57 +9,72 @@ import time
 from GameOfLife import NumpyWorld
 from GameOfLife import Patterns
 
-from curses import ( COLOR_BLACK, COLOR_BLUE, COLOR_CYAN,
-                     COLOR_GREEN, COLOR_MAGENTA, COLOR_RED,
-                     COLOR_WHITE, COLOR_YELLOW )
+from curses import (
+    COLOR_BLACK,
+    COLOR_BLUE,
+    COLOR_CYAN,
+    COLOR_GREEN,
+    COLOR_MAGENTA,
+    COLOR_RED,
+    COLOR_WHITE,
+    COLOR_YELLOW,
+)
+
 
 class CursesWorld(NumpyWorld):
-    '''
+    """
     Display a Game of Life in a terminal window using curses.
-    '''
+    """
 
-    colors = [COLOR_WHITE,COLOR_YELLOW,COLOR_MAGENTA,
-              COLOR_CYAN,COLOR_RED,COLOR_GREEN,COLOR_BLUE]
+    colors = [
+        COLOR_WHITE,
+        COLOR_YELLOW,
+        COLOR_MAGENTA,
+        COLOR_CYAN,
+        COLOR_RED,
+        COLOR_GREEN,
+        COLOR_BLUE,
+    ]
 
-    def __init__(self,window):
-        '''
+    def __init__(self, window):
+        """
         :param: window    - curses window
         
-        '''
-        h,w = window.getmaxyx()
-        super(CursesWorld,self).__init__(w,h-1)
+        """
+        h, w = window.getmaxyx()
+        super(CursesWorld, self).__init__(w, h - 1)
         self.w = window
         self.interval = 0
-        for n,fg in enumerate(self.colors):
-            curses.init_pair(n+1,fg,COLOR_BLACK)
+        for n, fg in enumerate(self.colors):
+            curses.init_pair(n + 1, fg, COLOR_BLACK)
 
     @property
     def gps(self):
-        '''
+        """
         Generations per second.
-        '''
+        """
         try:
             return self._gps
         except AttributeError:
             pass
         self._gps = 0
         return self._gps
-    
+
     @gps.setter
-    def gps(self,newValue):
+    def gps(self, newValue):
         self._gps = int(newValue)
 
-    def colorForCell(self,age):
-        '''
+    def colorForCell(self, age):
+        """
         Returns a curses color_pair for a cell, chosen by the cell's age.
-        '''
+        """
 
-        n = min(age // 100,len(self.colors)-1)
-        
-        return curses.color_pair(n+1)
+        n = min(age // 100, len(self.colors) - 1)
+
+        return curses.color_pair(n + 1)
 
     def handle_input(self):
-        '''
+        """
         Accepts input from the user and acts on it.
         
         Key        Action
@@ -69,44 +84,41 @@ class CursesWorld(NumpyWorld):
         +          increase redraw interval by 10 milliseconds
         -          decrease redraw interval by 10 milliseconds
 
-        '''
+        """
         c = self.w.getch()
-        if c == ord('q') or c == ord('Q'):
+        if c == ord("q") or c == ord("Q"):
             exit()
-        if c == ord('+'):
+        if c == ord("+"):
             self.interval += 10
-            
-        if c == ord('-'):
+
+        if c == ord("-"):
             self.interval -= 10
             if self.interval < 0:
                 self.interval = 0
-                
 
     @property
     def status(self):
-        '''
+        """
         Format string for the status line.
-        '''
+        """
         try:
-            return self._status.format(self=self,
-                                       a=len(self.alive),
-                                       t=self.cells.size)
+            return self._status.format(self=self, a=len(self.alive), t=self.cells.size)
         except AttributeError:
             pass
 
-        s = ['Q to quit\t',
-             '{self.generation:>10} G',
-             '{self.gps:>4} G/s',
-             'Census: {a:>5}/{t:<5}',
-             '{self.interval:>4} ms +/-']
-            
-        self._status = ' '.join(s)
-        return self._status.format(self=self,
-                                   a=len(self.alive),
-                                   t=self.cells.size)
+        s = [
+            "Q to quit\t",
+            "{self.generation:>10} G",
+            "{self.gps:>4} G/s",
+            "Census: {a:>5}/{t:<5}",
+            "{self.interval:>4} ms +/-",
+        ]
+
+        self._status = " ".join(s)
+        return self._status.format(self=self, a=len(self.alive), t=self.cells.size)
 
     def draw(self):
-        '''
+        """
         :return: None
 
         Updates each character in the curses window with
@@ -114,19 +126,18 @@ class CursesWorld(NumpyWorld):
 
         Moves the cursor to bottom-most line, left-most column
         when finished.
-        '''
+        """
         for y in range(self.height):
             for x in range(self.width):
-                c = self[x,y]
-                self.w.addch(y,x,self.markers[c > 0],self.colorForCell(c))
-        
-        self.w.addstr(self.height,2,self.status)
+                c = self[x, y]
+                self.w.addch(y, x, self.markers[c > 0], self.colorForCell(c))
 
-        self.w.move(self.height,1)
-        
+        self.w.addstr(self.height, 2, self.status)
 
-    def run(self,stop=-1,interval=0):
-        '''
+        self.w.move(self.height, 1)
+
+    def run(self, stop=-1, interval=0):
+        """
         :param: stop     - optional integer
         :param: interval - optional integer
         :return: None
@@ -148,7 +159,7 @@ class CursesWorld(NumpyWorld):
         the plus key '+' or decreased with the minus key '-' by increments
         of 10 milliseconds.
 
-        '''
+        """
         self.w.clear()
         self.interval = interval
         try:
@@ -163,56 +174,51 @@ class CursesWorld(NumpyWorld):
                 if self.interval:
                     curses.napms(self.interval)
                 t1 = time.time()
-                self.gps = 1/(t1-t0)
+                self.gps = 1 / (t1 - t0)
         except KeyboardInterrupt:
             pass
-        
 
-def main(stdscr,argv):
+
+def main(stdscr, argv):
 
     w = CursesWorld(stdscr)
 
     if len(argv) == 1:
         raise ValueError("no patterns specified.")
-    
+
     for thing in argv[1:]:
-        name,_,where = thing.partition(',')
+        name, _, where = thing.partition(",")
         try:
-            x,y = map(int,where.split(','))
+            x, y = map(int, where.split(","))
         except:
-            x,y = 0,0    
-        w.addPattern(Patterns[name],x=x,y=y)
+            x, y = 0, 0
+        w.add_pattern(Patterns[name], x=x, y=y)
 
     stdscr.nodelay(True)
-        
+
     w.run()
 
 
-def usage(argv,msg=None,exit_value=-1):
-    usagefmt = 'usage: {name} [[pattern_name],[X,Y]] ...'
-    namefmt = '\t{n}'
+def usage(argv, msg=None, exit_value=-1):
+    usagefmt = "usage: {name} [[pattern_name],[X,Y]] ..."
+    namefmt = "\t{n}"
     print(usagefmt.format(name=os.path.basename(argv[0])))
     if msg:
         print(msg)
-    print('pattern names:')
+    print("pattern names:")
     [print(namefmt.format(n=name)) for name in Patterns.keys()]
     exit(exit_value)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import sys
     import os
 
     from curses import wrapper
+
     try:
-        wrapper(main,sys.argv)
+        wrapper(main, sys.argv)
     except KeyError as e:
-        usage(sys.argv,'unknown pattern {p}'.format(p=str(e)))
+        usage(sys.argv, "unknown pattern {p}".format(p=str(e)))
     except ValueError as e:
-        usage(sys.argv,str(e))
-        
-        
-    
-
-
-
-    
+        usage(sys.argv, str(e))
