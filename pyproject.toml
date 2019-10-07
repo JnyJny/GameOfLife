@@ -23,9 +23,10 @@ python = "^3.6"
 click = "^7.0"
 numpy = "^1.17"
 pygame = "^1.9"
+asciimatics = "^1.11"
 
 [tool.poetry.scripts]
-gameoflife = "GameOfLife.console:cli"
+gameoflife = "GameOfLife.console.__init__:cli"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^18.3-alpha.0", allows-prereleases = true}
