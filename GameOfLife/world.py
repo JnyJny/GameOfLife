@@ -201,6 +201,14 @@ class World:
         for c in self:
             c.act()
 
+    def add_named_pattern(self, name, x=0, y=0, rule=None, eol="\n", resize=False):
+        """
+        """
+
+        return self.add_pattern(
+            BuiltinPatterns[name], x=x, y=y, rule=rule, eol=eol, resize=resize
+        )
+
     def add_pattern(self, pattern, x=0, y=0, rule=None, eol="\n", resize=False):
         """
         :param: pattern - string
