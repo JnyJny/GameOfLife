@@ -51,7 +51,7 @@ class CursesWorld(World):
         """
         h, w = window.getmaxyx()
         super().__init__(w, h - 1)
-        self.w = window
+        self.window = window
         self.interval = 0
         for n, fg in enumerate(self.colors):
             curses.init_pair(n + 1, fg, curses.COLOR_BLACK)
@@ -93,15 +93,15 @@ class CursesWorld(World):
         -          decrease redraw interval by 10 milliseconds
 
         """
-        key = chr(self.w.getch())
+        key = self.window.getch()
 
-        if key in "qQ":
+        if key in [ord("q"), ord("Q")]:
             exit()
 
-        if key == "+":
+        if key == ord("+"):
             self.interval += 10
 
-        if key == "-":
+        if key == ord("-"):
             self.interval -= 10
             if self.interval < 0:
                 self.interval = 0
@@ -140,11 +140,11 @@ class CursesWorld(World):
         for y in range(self.height):
             for x in range(self.width):
                 c = self[x, y]
-                self.w.addch(y, x, self.markers[c > 0], self.color_for_cell(c))
+                self.window.addch(y, x, self.markers[c > 0], self.color_for_cell(c))
 
-        self.w.addstr(self.height, 2, self.status)
+        self.window.addstr(self.height, 2, self.status)
 
-        self.w.move(self.height, 1)
+        self.window.move(self.height, 1)
 
     def run(self, stop=-1, interval=0):
         """
@@ -170,7 +170,7 @@ class CursesWorld(World):
         of 10 milliseconds.
 
         """
-        self.w.clear()
+        self.window.clear()
         self.interval = interval
         try:
             while True:
@@ -180,42 +180,10 @@ class CursesWorld(World):
                 t0 = time.time()
                 self.step()
                 self.draw()
-                self.w.refresh()
+                self.window.refresh()
                 if self.interval:
                     curses.napms(self.interval)
                 t1 = time.time()
                 self.gps = 1 / (t1 - t0)
         except KeyboardInterrupt:
             pass
-
-
-# def main(stdscr, argv):
-#
-#    w = CursesWorld(stdscr)
-#
-#    if len(argv) == 1:
-#        raise ValueError("no patterns specified.")
-#
-#    for thing in argv[1:]:
-#        name, _, where = thing.partition(",")
-#        try:
-#            x, y = map(int, where.split(","))
-#        except:
-#            x, y = 0, 0
-#        w.add_pattern(Patterns[name], x=x, y=y)
-#
-#    stdscr.nodelay(True)
-#
-#    w.run()
-#
-#
-# if __name__ == "__main__":
-#    import sys
-#    import os
-#
-#    try:
-#        wrapper(main, sys.argv)
-#    except KeyError as e:
-#        usage(sys.argv, "unknown pattern {p}".format(p=str(e)))
-#    except ValueError as e:
-#        usage(sys.argv, str(e))
