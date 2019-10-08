@@ -203,6 +203,13 @@ class World:
 
     def add_named_pattern(self, name, x=0, y=0, rule=None, eol="\n", resize=False):
         """
+        :param str name:
+        :param int x:
+        :param int y:
+        :param callable rule:
+        :param str eol:
+        :param bool resize:
+        :return: set of visited cells
         """
 
         return self.add_pattern(
@@ -211,14 +218,13 @@ class World:
 
     def add_pattern(self, pattern, x=0, y=0, rule=None, eol="\n", resize=False):
         """
-        :param: pattern - string
-        :param: x - optional integer
-        :param: y - optional integer
-        :param: rule - optional function with signature 'f(x) returns boolean'
-        :param: eol - optional character that marks the end of a line in
+        :param str pattern:
+        :param int x:
+        :param int y:
+        :param callable rule: optional function with signature 'f(x) returns boolean'
+        :param str eol: optional character that marks the end of a line in
                       the string
-        :param: resize - optional boolean, resizes world to pattern
-
+        :param bool resize: optional boolean, resizes world to pattern
         :return: set of visited cells
 
         This method uses the pattern string to affect the alive/dead
@@ -231,11 +237,6 @@ class World:
         how to interpret each item in the string in terms of alive or dead.
 
         """
-
-        try:
-            pattern = BuiltinPatterns[pattern]
-        except KeyError:
-            pass
 
         if rule is None:
             rule = lambda c: not c.isspace()
@@ -466,10 +467,6 @@ class NumpyWorld(World):
     def add_pattern(self, pattern, x=0, y=0, rule=None, eol="\n", resize=False):
         """
         """
-        try:
-            pattern = BuiltinPatterns[pattern]
-        except KeyError:
-            pass
 
         if rule is None:
             rule = lambda c: not c.isspace()
@@ -522,6 +519,7 @@ class NumpyWorld(World):
         if (self[x, y] > 0) and (v in live):
             state = self[x, y] + 1
 
+        # XXX why are coords swapped?
         self.state[y, x] = state
 
     def update_state(self):
@@ -576,6 +574,9 @@ class NumpyWorld(World):
 class OptimizedNumpyWorld(NumpyWorld):
     @property
     def candidates(self):
+        """
+        A list of alive cells and their immediate (dead) neighbors.
+        """
         n = set()
         for x, y in self.alive:
             for key in self.neighbors(x, y):
