@@ -40,9 +40,13 @@ class AsciimaticsWorld(World):
         if not event:
             return
         try:
+            if event.key_code == Screen.KEY_ESCAPE:
+                raise StopIteration()
             if chr(event.key_code) in "Qq":
                 raise StopIteration()
         except AttributeError:
+            pass
+        except ValueError:
             pass
 
     def draw(self):
