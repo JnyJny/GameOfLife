@@ -3,15 +3,18 @@
 
 from asciimatics.screen import ManagedScreen, Screen
 from time import sleep
-
 from .. import World
-from .. import Patterns
 
 
 class AsciimaticsWorld(World):
-    @classmethod
-    def start(cls, patterns=None):
+    """
+    """
 
+    @classmethod
+    def start(cls, patterns=None) -> None:
+        """
+        :param list patterns:
+        """
         with ManagedScreen() as screen:
             world = cls(screen)
             for (name, x, y) in patterns:
@@ -19,12 +22,20 @@ class AsciimaticsWorld(World):
             world.run()
 
     def __init__(self, screen):
-        w, h = screen.dimensions
+        """
+        :param asciimatics.screen.Screen screen:
+        """
+        h, w = screen.dimensions
         super().__init__(w, h - 1)
         self.screen = screen
 
-    def handle_input(self):
+    @property
+    def status(self):
+        return f" Q to quit\tGenerations: {self.generation:>10} Census: {len(self.alive):>5}"
 
+    def handle_input(self):
+        """
+        """
         event = self.screen.get_event()
         if not event:
             return
@@ -35,11 +46,15 @@ class AsciimaticsWorld(World):
             pass
 
     def draw(self):
+        """
+        """
 
         for (x, y) in self.alive:
-            self.screen.print_at("O", x, y, Screen.COLOUR_GREEN)
+            self.screen.print_at(self.markers[1], x, y, Screen.COLOUR_GREEN)
 
-    def run(self, stop=-1, interval=10):
+        self.screen.print_at(self.status, 0, self.height, Screen.COLOUR_WHITE)
+
+    def run(self, stop=-1, interval=50):
 
         while True:
             try:
