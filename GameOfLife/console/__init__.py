@@ -34,8 +34,4 @@ def cli(patterns, output, list_patterns):
 
     patterns = patterns or [("glider", 0, 0)]
 
-    for pattern in patterns:
-        name, x, y = pattern
-        print(name, x, y)
-
     World.start(patterns)
