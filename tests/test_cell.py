@@ -1,11 +1,9 @@
-
 import unittest
 
 from GameOfLife import Cell
 
 
 class CellTestCase(unittest.TestCase):
-
     def assertIsCell(self, obj, x=None, y=None, alive=None, markers=None):
         self.assertIsInstance(obj, Cell)
         if x is not None:
@@ -25,12 +23,12 @@ class CellTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             cell = Cell(0)
 
-        self.assertIsCell(Cell(0, 0), x=0, y=0, alive=False, markers=' .')
+        self.assertIsCell(Cell(0, 0), x=0, y=0, alive=False, markers=" .")
 
         alive = True
         self.assertIsCell(Cell(0, 0, alive=alive), alive=alive)
 
-        markers = 'ox'
+        markers = "ox"
         cell = Cell(0, 0, markers=markers)
         self.assertIsCell(cell, markers=markers)
 
@@ -53,14 +51,12 @@ class CellTestCase(unittest.TestCase):
         x, y = 3, 3
         cell = Cell(x, y)
 
-        offsets = [(-1, -1), (0, -1), (1, -1),
-                   (-1, 0), (1, 0),
-                   (-1, 1), (0, 1), (1, 1)]
+        offsets = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
 
-        self.assertEqual(len([loc for loc in cell.neighborLocations]), 8)
-        for loc in cell.neighborLocations:
+        self.assertEqual(len([loc for loc in cell.neighbor_locations]), 8)
+        for loc in cell.neighbor_locations:
             a, b = loc[0] - x, loc[1] - y
-            msg = '{loc} not in {o}'.format(loc=(a, b), o=offsets)
+            msg = "{loc} not in {o}".format(loc=(a, b), o=offsets)
             self.assertTrue((a, b) in offsets, msg)
 
     def testCellThinkMethod(self):
@@ -99,8 +95,8 @@ class CellTestCase(unittest.TestCase):
             cell.act()
             if n in [2, 3]:
                 self.assertTrue(
-                    cell.alive, '{n} {cell.neighbors}'.format(
-                        cell=cell, n=n))
+                    cell.alive, "{n} {cell.neighbors}".format(cell=cell, n=n)
+                )
             else:
                 self.assertFalse(cell.alive)
                 self.assertEqual(cell.age, 0)

@@ -1,4 +1,3 @@
-
 import unittest
 
 from GameOfLife import Cell, Patterns
@@ -8,27 +7,26 @@ import numpy
 
 
 class WorldTestCase(unittest.TestCase):
-
     def assertIsWorld(self, obj):
         self.assertIsInstance(obj, World)
 
-#    def assertIsGoodWorld(self,width=None,height=None,cellClass=None):
-#
-#        if width is not None:
-#            self.assertEqual(obj.width,width)
-#
-#        if height is not None:
-#            self.assertEqual(obj.height,height)
-#
-#        if cellClass is None:
-#            cellClass = Cell
-#
-#        self.assertEqual(obj.cellClass,cellClass)
-#
-#        self.assertEqual(len(obj.cells),obj.width * obj.height)
-#
-#        for c in obj:
-#            self.assertIsInstance(c,obj.cellClass)
+    #    def assertIsGoodWorld(self,width=None,height=None,cellClass=None):
+    #
+    #        if width is not None:
+    #            self.assertEqual(obj.width,width)
+    #
+    #        if height is not None:
+    #            self.assertEqual(obj.height,height)
+    #
+    #        if cellClass is None:
+    #            cellClass = Cell
+    #
+    #        self.assertEqual(obj.cellClass,cellClass)
+    #
+    #        self.assertEqual(len(obj.cells),obj.width * obj.height)
+    #
+    #        for c in obj:
+    #            self.assertIsInstance(c,obj.cellClass)
 
     def testWorldCreation(self):
 
@@ -37,7 +35,7 @@ class WorldTestCase(unittest.TestCase):
         class TestCell(Cell):
             pass
 
-        self.assertIsWorld(World(CellClass=TestCell))
+        self.assertIsWorld(World(cell_class=TestCell))
 
         dim = 10
         self.assertIsWorld(World(width=dim))
@@ -144,33 +142,36 @@ class WorldTestCase(unittest.TestCase):
 
         for pattern in Patterns.values():
 
-            world = World(width=40, height=40)
+            world = World(width=100, height=100)
 
             nAlivePatternCells = len([c for c in pattern if not c.isspace()])
 
-            world.addPattern(pattern)
+            world.add_pattern(pattern)
 
-            self.assertEqual(len([cell for cell in world if cell.alive]),
-                             nAlivePatternCells,
-                             'pattern {pattern}'.format(pattern=pattern))
+            self.assertEqual(
+                len([cell for cell in world if cell.alive]),
+                nAlivePatternCells,
+                "pattern {pattern}".format(pattern=pattern),
+            )
 
         for name, pattern in Patterns.items():
 
-            world = World(width=40, height=40)
+            world = World(width=100, height=100)
 
             nAlivePatternCells = len([c for c in pattern if not c.isspace()])
 
-            world.addPattern(name)
+            world.add_named_pattern(name)
 
-            self.assertEqual(len([cell for cell in world if cell.alive]),
-                             nAlivePatternCells,
-                             'pattern {pattern}'.format(pattern=pattern))
+            self.assertEqual(
+                len([cell for cell in world if cell.alive]),
+                nAlivePatternCells,
+                "{name} pattern {pattern}".format(name=name, pattern=pattern),
+            )
 
         # XXX test x,y, rule, eol and resize
 
 
 class OptimizedWorldTestCase(WorldTestCase):
-
     def testAliveProperty(self):
         pass
 
@@ -185,7 +186,6 @@ class OptimizedWorldTestCase(WorldTestCase):
 
 
 class NumpyWorldTestCase(unittest.TestCase):
-
     def assertIsNumpyWorld(self, obj, width=None, height=None):
         self.assertIsInstance(obj, NumpyWorld)
 
